@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERIDOC — System Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #1a1814;
+    --ink2: #4a4742;
+    --ink3: #8a8782;
+    --rule: #e4e0d8;
+    --bg: #f9f7f3;
+    --bg2: #f0ede6;
+    --blue: #1a4a7a;
+    --blue-bg: #e8f0f8;
+    --teal: #0f5c45;
+    --teal-bg: #e0f0ea;
+    --coral: #8a2a1a;
+    --coral-bg: #f5e8e4;
+    --amber: #7a4a08;
+    --amber-bg: #f5edd8;
+    --gray: #5a5855;
+    --gray-bg: #f0ede6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 40px 32px 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 36px;
+  }
+
+  .page-head h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .page-head .meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--ink3);
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  /* ── PIPELINE STRIP ── */
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-bottom: 36px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .pipe-step {
+    flex: 1;
+    padding: 14px 12px;
+    border-right: 1px solid var(--rule);
+    position: relative;
+  }
+  .pipe-step:last-child { border-right: none; }
+
+  .pipe-step .ps-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--ink3);
+    letter-spacing: 0.08em;
+    margin-bottom: 5px;
+  }
+
+  .pipe-step .ps-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+
+  .pipe-step .ps-sub {
+    font-size: 10px;
+    color: var(--ink3);
+    line-height: 1.4;
+  }
+
+  .pipe-step.active { background: var(--ink); }
+  .pipe-step.active .ps-num,
+  .pipe-step.active .ps-name,
+  .pipe-step.active .ps-sub { color: #c8c4bc; }
+  .pipe-step.active .ps-name { color: #f0ede6; }
+
+  /* ── SECTION LABEL ── */
+  .sec-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 12px;
+    margin-top: 32px;
+  }
+
+  /* ── MAIN GRID ── */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .arch-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .arch-grid-full {
+    margin-bottom: 12px;
+  }
+
+  /* ── COMPONENT CARD ── */
+  .comp {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .comp-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .comp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .comp-head h3 {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .comp-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .comp-body {
+    padding: 12px 14px;
+  }
+
+  .comp-body p {
+    font-size: 11.5px;
+    color: var(--ink2);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .comp-body p:last-child { margin-bottom: 0; }
+
+  .comp-detail {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--rule);
+    gap: 12px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+
+  .detail-key {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--ink3);
+    white-space: nowrap;
+    padding-top: 1px;
+  }
+
+  .detail-val {
+    font-size: 11px;
+    color: var(--ink2);
+    text-align: right;
+    line-height: 1.4;
+  }
+
+  /* colour tokens */
+  .blue  { background: var(--blue-bg);  }
+  .teal  { background: var(--teal-bg);  }
+  .coral { background: var(--coral-bg); }
+  .amber { background: var(--amber-bg); }
+  .gray  { background: var(--gray-bg);  }
+
+  .dot-blue  { background: var(--blue);  }
+  .dot-teal  { background: var(--teal);  }
+  .dot-coral { background: var(--coral); }
+  .dot-amber { background: var(--amber); }
+  .dot-gray  { background: var(--gray);  }
+
+  .tag-blue  { background: var(--blue-bg);  color: var(--blue);  }
+  .tag-teal  { background: var(--teal-bg);  color: var(--teal);  }
+  .tag-coral { background: var(--coral-bg); color: var(--coral); }
+  .tag-amber { background: var(--amber-bg); color: var(--amber); }
+  .tag-gray  { background: var(--gray-bg);  color: var(--gray);  }
+
+  /* ── DATA FLOW CONNECTOR ── */
+  .flow-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+    gap: 8px;
+    color: var(--ink3);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+  }
+
+  .flow-line {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* ── TRUTH TABLE ── */
+  .truth-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    margin-top: 10px;
+  }
+
+  .truth-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    font-weight: 500;
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg2);
+  }
+
+  .truth-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink2);
+    vertical-align: middle;
+  }
+
+  .truth-table tr:last-child td { border-bottom: none; }
+
+  .verdict {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+  }
+
+  .v-pass   { background: var(--teal-bg);  color: var(--teal);  }
+  .v-fail   { background: var(--coral-bg); color: var(--coral); }
+  .v-review { background: var(--amber-bg); color: var(--amber); }
+
+  /* ── FEEDBACK LOOP ── */
+  .feedback-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+
+  .fb-step {
+    padding: 14px;
+    border-right: 1px solid var(--rule);
+    position: relative;
+  }
+  .fb-step:last-child { border-right: none; }
+
+  .fb-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--ink3);
+    margin-bottom: 5px;
+  }
+
+  .fb-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .fb-desc {
+    font-size: 10.5px;
+    color: var(--ink2);
+    line-height: 1.5;
+  }
+
+  /* ── BOTTOM ROW ── */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    align-items: center;
+  }
+
+  .legend-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: var(--ink3);
+    letter-spacing: 0.08em;
+    margin-right: 4px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--ink2);
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>VERIDOC — system architecture</h1>
+  <div class="meta">
+    v1.0 draft · Team Diamond<br>
+    Theme 3 · CRPF Tender Evaluation
+  </div>
+</div>
+
+<!-- PIPELINE -->
+<div class="pipeline">
+  <div class="pipe-step">
+    <div class="ps-num">INPUT</div>
+    <div class="ps-name">Scanned PDFs</div>
+    <div class="ps-sub">Tender notice + all bid exhibits</div>
+  </div>
+  <div class="pipe-step active">
+    <div class="ps-num">LAYER 01</div>
+    <div class="ps-name">OCR + parsing</div>
+    <div class="ps-sub">PaddleOCR-VL · Hindi/regional</div>
+  </div>
+  <div class="pipe-step active">
+    <div class="ps-num">LAYER 02</div>
+    <div class="ps-name">Obligation graph</div>
+    <div class="ps-sub">LegalBERT · deontic rules</div>
+  </div>
+  <div class="pipe-step active">
+    <div class="ps-num">LAYER 03</div>
+    <div class="ps-name">Evidence chains</div>
+    <div class="ps-sub">IndexRAG · cross-document</div>
+  </div>
+  <div class="pipe-step active">
+    <div class="ps-num">LAYER 04</div>
+    <div class="ps-name">Verdict engine</div>
+    <div class="ps-sub">3-axis · counterfactual</div>
+  </div>
+  <div class="pipe-step">
+    <div class="ps-num">OUTPUT</div>
+    <div class="ps-name">Audit report</div>
+    <div class="ps-sub">PDF-cited · GFR 2017 compliant</div>
+  </div>
+</div>
+
+<!-- LAYER 01 + 02 -->
+<div class="sec-label">Core processing layers</div>
+<div class="arch-grid">
+
+  <div class="comp">
+    <div class="comp-head blue">
+      <div class="comp-dot dot-blue"></div>
+      <h3>OCR &amp; ingestion</h3>
+      <span class="comp-tag tag-blue">Layer 01</span>
+    </div>
+    <div class="comp-body">
+      <p>PaddleOCR-VL-0.9B converts scanned pages into structured Markdown, preserving table cell coordinates. Every extracted value carries a page and bounding-box reference so the frontend can highlight the exact PDF line a verdict cites.</p>
+      <div class="comp-detail">
+        <div class="detail-row">
+          <span class="detail-key">model</span>
+          <span class="detail-val">PaddleOCR-VL-0.9B</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">languages</span>
+          <span class="detail-val">109 incl. Hindi Devanagari</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">benchmark</span>
+          <span class="detail-val">SOTA · OmniDocBench v1.5</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">cost</span>
+          <span class="detail-val">$0.09 / 1K pages self-hosted</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">output</span>
+          <span class="detail-val">Markdown + bounding boxes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head blue">
+      <div class="comp-dot dot-blue"></div>
+      <h3>Obligation extraction</h3>
+      <span class="comp-tag tag-blue">Layer 02</span>
+    </div>
+    <div class="comp-body">
+      <p>LegalBERT fine-tuned on government RFP corpora parses each criterion into typed obligation nodes. Dependencies between criteria are modelled as directed edges — a failing upstream node cascades failure downward automatically.</p>
+      <div class="comp-detail">
+        <div class="detail-row">
+          <span class="detail-key">model</span>
+          <span class="detail-val">LegalBERT (EMNLP 2020)</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">node fields</span>
+          <span class="detail-val">modal · threshold · temporal · evidence · attestation</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">graph type</span>
+          <span class="detail-val">Directed acyclic</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">modal types</span>
+          <span class="detail-val">MANDATORY · CONDITIONAL · OPTIONAL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head teal">
+      <div class="comp-dot dot-teal"></div>
+      <h3>Multi-hop evidence mapper</h3>
+      <span class="comp-tag tag-teal">Layer 03</span>
+    </div>
+    <div class="comp-body">
+      <p>IndexRAG builds bridging facts at index time — linking a turnover claim in the bid letter to the audited P&amp;L, the audit period statement, and the CA certificate. A single-pass retrieval returns the full cross-document chain.</p>
+      <div class="comp-detail">
+        <div class="detail-row">
+          <span class="detail-key">method</span>
+          <span class="detail-val">IndexRAG (arXiv 2603.16415)</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">gain</span>
+          <span class="detail-val">+4.6 F1 over naive RAG</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">chain depth</span>
+          <span class="detail-val">2–4 exhibits per criterion</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">output</span>
+          <span class="detail-val">Evidence chain + completeness score</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LAYER 04 -->
+<div class="arch-grid-2">
+
+  <div class="comp">
+    <div class="comp-head teal">
+      <div class="comp-dot dot-teal"></div>
+      <h3>Verdict engine</h3>
+      <span class="comp-tag tag-teal">Layer 04</span>
+    </div>
+    <div class="comp-body">
+      <p>Scores each criterion on three independent axes, combined as a weighted product — not a sum. A zero on any axis vetoes the result regardless of the other two. Claude Sonnet 4 reasons over the assembled evidence chain to produce JSON-structured verdicts.</p>
+      <div class="comp-detail">
+        <div class="detail-row">
+          <span class="detail-key">axis 1</span>
+          <span class="detail-val">Evidence quality — legible, complete, formatted</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">axis 2</span>
+          <span class="detail-val">Semantic match — addresses the right obligation</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">axis 3</span>
+          <span class="detail-val">Threshold compliance — value clears the bar</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">combination</span>
+          <span class="detail-val">Weighted product (not sum)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head teal">
+      <div class="comp-dot dot-teal"></div>
+      <h3>Verdict logic — truth table</h3>
+      <span class="comp-tag tag-teal">Layer 04</span>
+    </div>
+    <div class="comp-body">
+      <table class="truth-table">
+        <thead>
+          <tr>
+            <th>Axis 1</th>
+            <th>Axis 2</th>
+            <th>Axis 3</th>
+            <th>Verdict</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>High</td><td>High</td><td>High</td>
+            <td><span class="verdict v-pass">PASS</span></td>
+          </tr>
+          <tr>
+            <td>High</td><td>High</td><td>Low</td>
+            <td><span class="verdict v-fail">FAIL</span></td>
+          </tr>
+          <tr>
+            <td>High</td><td>Mid</td><td>High</td>
+            <td><span class="verdict v-review">REVIEW</span></td>
+          </tr>
+          <tr>
+            <td>Low</td><td>High</td><td>High</td>
+            <td><span class="verdict v-fail">FAIL</span></td>
+          </tr>
+          <tr>
+            <td>Any</td><td>Any</td><td>55–79%</td>
+            <td><span class="verdict v-review">REVIEW</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- PARALLEL MODULES -->
+<div class="sec-label">Parallel modules</div>
+<div class="arch-grid">
+
+  <div class="comp">
+    <div class="comp-head coral">
+      <div class="comp-dot dot-coral"></div>
+      <h3>Counterfactual explainer</h3>
+      <span class="comp-tag tag-coral">audit trail</span>
+    </div>
+    <div class="comp-body">
+      <p>For every failing criterion, generates a precise recourse statement. Not "you failed" — "if you submit X covering period Y attested by Z, this criterion passes." Required under GFR 2017 Rule 204.</p>
+      <div class="comp-detail">
+        <div class="detail-row">
+          <span class="detail-key">basis</span>
+          <span class="detail-val">Coston et al. FAT* 2020 · Leben CMU 2023</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">output</span>
+          <span class="detail-val">Per-criterion recourse statement</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">legal ref</span>
+          <span class="detail-val">GFR 2017 Rule 204</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head coral">
+      <div class="comp-dot dot-coral"></div>
+      <h3>Collusion risk detection</h3>
+      <span class="comp-tag tag-coral">advisory only</span>
+    </div>
+    <div class="comp-body">
+      <p>CNN scans bidder interaction graphs across the full bid pool. Six anomaly detectors run in parallel. Flags are advisory — no bid is blocked automatically. The officer decides.</p>
+      <div class="comp-detail">
+        <div class="detail-row">
+          <span class="detail-key">model</span>
+          <span class="detail-val">CNN · García Rodríguez et al.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">accuracy</span>
+          <span class="detail-val">81–95% (OECD documented)</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">checks</span>
+          <span class="detail-val">Price · timing · address · text · pattern</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head amber">
+      <div class="comp-dot dot-amber"></div>
+      <h3>Active learning loop</h3>
+      <span class="comp-tag tag-amber">improves over time</span>
+    </div>
+    <div class="comp-body">
+      <p>Every evaluator override is captured as a structured correction: which axis was wrong, correct label, PDF span, obligation type. Corrections accumulate into a fine-tuning dataset. Threshold: 200 corrections triggers a scheduled retrain.</p>
+      <div class="comp-detail">
+        <div class="detail-row">
+          <span class="detail-key">reference</span>
+          <span class="detail-val">Singapore iCAS: 61% → 88% in 18 months</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">format</span>
+          <span class="detail-val">Structured form, not free text</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">threshold</span>
+          <span class="detail-val">200 new corrections → retrain queue</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FEEDBACK LOOP STRIP -->
+<div class="sec-label">Active learning cycle</div>
+<div class="feedback-strip">
+  <div class="fb-step">
+    <div class="fb-num">01</div>
+    <div class="fb-title">VERIDOC produces verdict</div>
+    <div class="fb-desc">Criterion scored on 3 axes. Borderline cases flagged for review automatically.</div>
+  </div>
+  <div class="fb-step">
+    <div class="fb-num">02</div>
+    <div class="fb-title">Officer reviews and overrides</div>
+    <div class="fb-desc">Structured correction form captures which axis was wrong and the correct classification.</div>
+  </div>
+  <div class="fb-step">
+    <div class="fb-num">03</div>
+    <div class="fb-title">Correction stored with context</div>
+    <div class="fb-desc">Original prediction, corrected label, PDF bounding box, obligation type — all saved together.</div>
+  </div>
+  <div class="fb-step">
+    <div class="fb-num">04</div>
+    <div class="fb-title">Periodic fine-tune</div>
+    <div class="fb-desc">At 200-correction threshold, obligation classifier and verdict engine are fine-tuned on accumulated corrections.</div>
+  </div>
+</div>
+
+<!-- TECH STACK -->
+<div class="sec-label">Technology choices</div>
+<div class="arch-grid">
+
+  <div class="comp">
+    <div class="comp-head gray">
+      <div class="comp-dot dot-gray"></div>
+      <h3>Document processing</h3>
+      <span class="comp-tag tag-gray">stack</span>
+    </div>
+    <div class="comp-body">
+      <div class="comp-detail" style="margin-top:0; padding-top:0; border-top:none;">
+        <div class="detail-row">
+          <span class="detail-key">OCR</span>
+          <span class="detail-val">PaddleOCR-VL-0.9B</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">NLP</span>
+          <span class="detail-val">LegalBERT + deontic grammar</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">retrieval</span>
+          <span class="detail-val">IndexRAG (flat vector store)</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">embeddings</span>
+          <span class="detail-val">IndicBERT for Indian names</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head gray">
+      <div class="comp-dot dot-gray"></div>
+      <h3>Reasoning &amp; verdict</h3>
+      <span class="comp-tag tag-gray">stack</span>
+    </div>
+    <div class="comp-body">
+      <div class="comp-detail" style="margin-top:0; padding-top:0; border-top:none;">
+        <div class="detail-row">
+          <span class="detail-key">LLM</span>
+          <span class="detail-val">Claude Sonnet 4 (structured output)</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">verdict format</span>
+          <span class="detail-val">JSON · 3-axis manifold</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">collusion</span>
+          <span class="detail-val">CNN on bidder interaction graph</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">counterfactual</span>
+          <span class="detail-val">Structured recourse generator</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comp">
+    <div class="comp-head gray">
+      <div class="comp-dot dot-gray"></div>
+      <h3>Frontend &amp; storage</h3>
+      <span class="comp-tag tag-gray">stack</span>
+    </div>
+    <div class="comp-body">
+      <div class="comp-detail" style="margin-top:0; padding-top:0; border-top:none;">
+        <div class="detail-row">
+          <span class="detail-key">UI</span>
+          <span class="detail-val">React + PDF.js</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">PDF highlight</span>
+          <span class="detail-val">Bounding-box overlay per verdict</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">corrections</span>
+          <span class="detail-val">Structured store → fine-tune queue</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">backend</span>
+          <span class="detail-val">FastAPI · PostgreSQL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-label">LAYER KEY</span>
+  <div class="legend-item"><div class="legend-dot dot-blue"></div> OCR + obligation (layers 01–02)</div>
+  <div class="legend-item"><div class="legend-dot dot-teal"></div> Evidence + verdict (layers 03–04)</div>
+  <div class="legend-item"><div class="legend-dot dot-coral"></div> Explainability + integrity</div>
+  <div class="legend-item"><div class="legend-dot dot-amber"></div> Active learning</div>
+  <div class="legend-item"><div class="legend-dot dot-gray"></div> Infrastructure</div>
+</div>
+
+</body>
+</html>
