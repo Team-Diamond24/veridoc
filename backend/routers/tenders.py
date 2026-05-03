@@ -1,5 +1,6 @@
 """Tenders router — upload, list, get criteria, trigger evaluation."""
 import os
+import re
 import shutil
 from typing import List, Optional
 from fastapi import APIRouter, Depends, File, UploadFile, Form, HTTPException, BackgroundTasks
@@ -48,8 +49,9 @@ async def upload_tender(
     if existing:
         raise HTTPException(status_code=400, detail=f"Tender '{tender_number}' already exists")
 
-    # Save file
-    file_path = os.path.join(UPLOAD_DIR, f"{tender_number}_{file.filename}")
+    # Save file — sanitize tender_number to strip path-unsafe characters (/, \, etc.)
+    safe_tender_number = re.sub(r'[/\\:*?"<>|]', '_', tender_number)
+    file_path = os.path.join(UPLOAD_DIR, f"{safe_tender_number}_{file.filename}")
     with open(file_path, "wb") as f:
         content = await file.read()
         f.write(content)
