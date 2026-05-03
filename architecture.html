@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERIDOC — System Architecture & Design</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --ink: #1a1814;
+    --ink2: #4a4742;
+    --ink3: #8a8782;
+    --rule: #e4e0d8;
+    --bg: #f9f7f3;
+    --bg2: #f0ede6;
+    --blue: #1a4a7a;
+    --blue-bg: #e8f0f8;
+    --teal: #0f5c45;
+    --teal-bg: #e0f0ea;
+    --coral: #8a2a1a;
+    --coral-bg: #f5e8e4;
+    --amber: #7a4a08;
+    --amber-bg: #f5edd8;
+    --green: #2a6a1a;
+    --green-bg: #e8f5e8;
+    --gray: #5a5855;
+    --gray-bg: #f0ede6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 40px 32px 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 500;
+    margin-top: 28px;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+
+  h1 { font-size: 28px; margin-top: 0; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+  h2 { font-size: 20px; margin-top: 36px; }
+  h3 { font-size: 16px; color: var(--ink2); }
+  h4 { font-size: 14px; font-weight: 600; color: var(--ink3); }
+
+  p, li {
+    margin-bottom: 10px;
+    color: var(--ink2);
+    line-height: 1.7;
+  }
+
+  li { margin-left: 20px; }
+
+  .section {
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--blue);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: var(--blue);
+    border-radius: 2px;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+
+  .box {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px;
+  }
+
+  .box.info { border-left: 4px solid var(--blue); background: var(--blue-bg); }
+  .box.success { border-left: 4px solid var(--teal); background: var(--teal-bg); }
+  .box.warning { border-left: 4px solid var(--amber); background: var(--amber-bg); }
+  .box.danger { border-left: 4px solid var(--coral); background: var(--coral-bg); }
+  .box.neutral { border-left: 4px solid var(--gray); background: var(--gray-bg); }
+
+  .box h4 { margin-top: 0; color: var(--ink); }
+  .box p { font-size: 13px; margin-bottom: 6px; }
+
+  .code {
+    background: var(--bg2);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 8px 0;
+    color: var(--ink);
+  }
+
+  .diagram {
+    background: var(--bg2);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+    color: var(--ink);
+    overflow-x: auto;
+  }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+
+  .flow-item {
+    background: var(--blue);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .flow-arrow {
+    color: var(--ink3);
+    font-weight: bold;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  th {
+    background: var(--bg2);
+    border: 1px solid var(--rule);
+    padding: 10px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  td {
+    border: 1px solid var(--rule);
+    padding: 10px;
+    color: var(--ink2);
+  }
+
+  tr:nth-child(even) {
+    background: #fafaf8;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+
+  .badge.phase1 { background: var(--blue-bg); color: var(--blue); }
+  .badge.phase2 { background: var(--teal-bg); color: var(--teal); }
+  .badge.phase3 { background: var(--coral-bg); color: var(--coral); }
+  .badge.phase4 { background: var(--amber-bg); color: var(--amber); }
+  .badge.critical { background: #fee; color: var(--coral); border: 1px solid var(--coral); }
+  .badge.validation { background: var(--green-bg); color: var(--green); }
+
+  .checklist {
+    list-style: none;
+    padding: 0;
+  }
+
+  .checklist li {
+    padding: 6px 0;
+    margin-left: 0;
+  }
+
+  .checklist li::before {
+    content: '□ ';
+    font-weight: bold;
+    color: var(--ink3);
+    margin-right: 8px;
+  }
+
+  .nav {
+    background: var(--bg2);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  .nav h3 {
+    margin-top: 0;
+    font-size: 14px;
+  }
+
+  .nav ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .nav li {
+    margin: 6px 0;
+    margin-left: 0;
+  }
+
+  .nav a {
+    color: var(--blue);
+    text-decoration: none;
+    font-size: 13px;
+  }
+
+  .nav a:hover {
+    text-decoration: underline;
+  }
+
+  .status-good { color: var(--teal); font-weight: 600; }
+  .status-warning { color: var(--amber); font-weight: 600; }
+  .status-critical { color: var(--coral); font-weight: 600; }
+
+  .layer-box {
+    background: #fff;
+    border: 2px solid var(--rule);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+  }
+
+  .layer-box.layer1 { border-top: 6px solid var(--blue); }
+  .layer-box.layer2 { border-top: 6px solid var(--teal); }
+  .layer-box.layer3 { border-top: 6px solid var(--coral); }
+  .layer-box.layer4 { border-top: 6px solid var(--amber); }
+
+  .layer-box h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+
+  .tech-stack {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .tech-item {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .tech-item strong {
+    display: block;
+    color: var(--ink);
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+
+  .tech-item span {
+    color: var(--ink3);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .footnote {
+    font-size: 12px;
+    color: var(--ink3);
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .highlight {
+    background: #fffbdf;
+    padding: 2px 4px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<h1>VERIDOC — System Architecture & Design Document</h1>
+
+<div class="nav">
+  <h3>Quick Navigation</h3>
+  <ul>
+    <li><a href="#overview">System Overview</a></li>
+    <li><a href="#layers">The Four Layers</a></li>
+    <li><a href="#data-flow">Data Flow</a></li>
+    <li><a href="#tech-stack">Technology Stack</a></li>
+    <li><a href="#database">Database Schema</a></li>
+    <li><a href="#api">API Design</a></li>
+    <li><a href="#timeline">Implementation Timeline</a></li>
+    <li><a href="#risks">Risks & Mitigations</a></li>
+    <li><a href="#success">Success Metrics</a></li>
+  </ul>
+</div>
+
+<!-- SECTION: OVERVIEW -->
+<div class="section" id="overview">
+  <div class="section-title">System Overview</div>
+  
+  <h2>What VERIDOC Does</h2>
+  <p>VERIDOC is a four-layer AI system that evaluates government tender bids. It reads eligibility rules from the tender document, parses each bidder's submission (in any format), extracts evidence, and produces explainable pass/fail/review verdicts with full audit trails.</p>
+
+  <div class="box info">
+    <h4>Core Principle</h4>
+    <p><strong>Never silently reject.</strong> If the system is unsure, it flags the case for human review with clear reasoning. This ensures fairness and legal defensibility in government procurement.</p>
+  </div>
+
+  <h3>The Big Picture</h3>
+  <div class="diagram">
+Tender Document          Bidder Submissions
+        ↓                        ↓
+    ┌───────────────────────────────────────┐
+    │   LAYER 1: Document Ingestion & OCR   │
+    │   Convert all docs → structured text   │
+    └──────────────────┬──────────────────┘
+                       ↓
+    ┌───────────────────────────────────────┐
+    │  LAYER 2: Obligation Extraction        │
+    │  Parse tender → structured rules       │
+    └──────────────────┬──────────────────┘
+                       ↓
+    ┌───────────────────────────────────────┐
+    │  LAYER 3: Evidence Mapping             │
+    │  Find proof → chain evidence           │
+    └──────────────────┬──────────────────┘
+                       ↓
+    ┌───────────────────────────────────────┐
+    │  LAYER 4: Verdict Engine               │
+    │  Evaluate evidence → PASS/FAIL/REVIEW  │
+    └──────────────────┬──────────────────┘
+                       ↓
+             Evaluation Report
+      (with PDF highlights, audit trail,
+         counterfactual guidance)
+  </div>
+</div>
+
+<!-- SECTION: LAYERS -->
+<div class="section" id="layers">
+  <div class="section-title">The Four Layers Explained</div>
+
+  <h2>Layer 1: Document Ingestion & OCR</h2>
+  
+  <div class="layer-box layer1">
+    <h3>Purpose</h3>
+    <p>Convert <strong>every</strong> document into machine-readable text with precise location metadata. This is the foundation — garbage in means garbage out.</p>
+
+    <h4>What It Handles</h4>
+    <ul>
+      <li><strong>Typed PDFs</strong> → Extract text + structure directly</li>
+      <li><strong>Scanned PDFs</strong> → OCR with confidence scoring</li>
+      <li><strong>Word documents (.docx)</strong> → Parse with python-docx</li>
+      <li><strong>Excel files (.xlsx)</strong> → Extract cells as structured data</li>
+      <li><strong>Images (JPG, PNG, etc.)</strong> → OCR with orientation detection</li>
+      <li><strong>Mixed documents</strong> → Handle page-by-page (some typed, some scanned)</li>
+    </ul>
+
+    <h4>Key Feature: Bounding Boxes</h4>
+    <p>Every extracted piece of text carries metadata: <code>{ text: "₹50 crore", page: 5, bbox: [100, 200, 300, 220], confidence: 0.94 }</code></p>
+    <p>This lets us later highlight the exact PDF location when showing the officer our reasoning.</p>
+
+    <h4>Technologies</h4>
+    <div class="tech-stack">
+      <div class="tech-item">
+        <strong>PaddleOCR-VL</strong>
+        <span>109 languages, Hindi/regional scripts</span>
+      </div>
+      <div class="tech-item">
+        <strong>python-docx</strong>
+        <span>Word document parsing</span>
+      </div>
+      <div class="tech-item">
+        <strong>openpyxl</strong>
+        <span>Excel parsing</span>
+      </div>
+      <div class="tech-item">
+        <strong>PDF.js</strong>
+        <span>PDF structure analysis</span>
+      </div>
+    </div>
+
+    <h4>Output Format</h4>
+    <div class="code">
+{
+  "document_id": "bid_001_company_abc",
+  "page_count": 42,
+  "extracted_text": "...(markdown)...",
+  "chunks": [
+    {
+      "text": "Annual turnover ₹50 crore",
+      "page": 5,
+      "bbox": [100, 200, 300, 220],
+      "ocr_confidence": 0.94,
+      "source": "P&L statement",
+      "chunk_id": "chunk_042"
+    }
+  ]
+}
+    </div>
+  </div>
+
+  <h2>Layer 2: Obligation Extraction</h2>
+  
+  <div class="layer-box layer2">
+    <h3>Purpose</h3>
+    <p>Extract the eligibility rules from the tender document into <strong>structured, machine-readable form</strong>. Understand what the tender actually requires.</p>
+
+    <h4>What It Extracts</h4>
+    <ul>
+      <li><strong>Criterion name</strong> (e.g., "Annual Turnover")</li>
+      <li><strong>Modal type</strong> (MANDATORY, CONDITIONAL, OPTIONAL)</li>
+      <li><strong>Threshold</strong> (e.g., "₹5 crore minimum")</li>
+      <li><strong>Temporal scope</strong> (e.g., "last 5 years")</li>
+      <li><strong>Evidence type</strong> (e.g., "audited P&L statement")</li>
+      <li><strong>Dependencies</strong> (e.g., "Criterion A only applies if Criterion B is met")</li>
+    </ul>
+
+    <h4>The Obligation Graph</h4>
+    <p>Criteria are modeled as a <strong>directed acyclic graph (DAG)</strong>. If Criterion A fails, any criteria that depend on it are automatically marked as "blocked."</p>
+    <div class="code">
+Criterion 1: GST Registration [MANDATORY]
+  ↓
+Criterion 2: GST Certificate [MANDATORY, depends on 1]
+  ↓
+Criterion 3: GST History (3+ years) [MANDATORY, depends on 2]
+    </div>
+
+    <h4>Technologies</h4>
+    <div class="tech-stack">
+      <div class="tech-item">
+        <strong>LegalBERT</strong>
+        <span>Fine-tuned on CRPF tenders (F1 ≥ 0.75)</span>
+      </div>
+      <div class="tech-item">
+        <strong>Deontic Logic</strong>
+        <span>Parse modal language (must, should, may)</span>
+      </div>
+      <div class="tech-item">
+        <strong>Spacy NLP</strong>
+        <span>Dependency parsing for relationships</span>
+      </div>
+    </div>
+
+    <h4>Output Format</h4>
+    <div class="code">
+{
+  "criterion_id": "crit_001",
+  "name": "Annual Turnover",
+  "modal": "MANDATORY",
+  "threshold": { "value": 5, "unit": "crore", "currency": "INR" },
+  "temporal": { "period": 5, "unit": "years" },
+  "evidence_type": "audited_financial_statement",
+  "dependencies": [],
+  "page_references": [3, 4]
+}
+    </div>
+
+    <div class="box warning">
+      <h4>Critical Validation Gate</h4>
+      <p><strong>Phase 1, Week 2</strong>: Test LegalBERT on hold-out CRPF tenders. Measure F1 on obligation extraction (modal type, threshold, evidence type). If F1 &lt; 0.75, expand training data before proceeding.</p>
+    </div>
+  </div>
+
+  <h2>Layer 3: Evidence Mapping</h2>
+  
+  <div class="layer-box layer3">
+    <h3>Purpose</h3>
+    <p>For each criterion, find and chain together all relevant evidence from the bidder's documents. Don't just find individual documents — build complete proof chains.</p>
+
+    <h4>The Problem with Naive Retrieval</h4>
+    <p>If you ask "Does the bidder have ₹5 crore turnover?" and retrieve one chunk that says "We have annual turnover ₹50 crores," you're missing the chain:</p>
+    <div class="diagram">
+1. Bid letter claims: "Annual turnover ₹50 crores"
+2. Supported by: P&L statement (pages 4-5)
+3. Certified by: Auditor certificate ("P&L verified for FY2021-23")
+4. Verified by: CA registration + firm details
+    </div>
+    <p><strong>Naive RAG</strong> would retrieve just the claim. <strong>IndexRAG</strong> retrieves the entire chain in one pass.</p>
+
+    <h4>How IndexRAG Works</h4>
+    <ul>
+      <li><strong>Indexing phase:</strong> For each document chunk, pre-compute "bridges" to related chunks (same topic, same time period, same entity)</li>
+      <li><strong>Retrieval phase:</strong> Given a criterion requirement, retrieve not just matching chunks but the full chain of connected chunks</li>
+      <li><strong>Scoring:</strong> Rate chain completeness ("Do we have all the evidence needed?") and confidence</li>
+    </ul>
+
+    <h4>External Evidence Flagging</h4>
+    <p>Some evidence isn't in the documents — it's external (requires manual lookup). We explicitly flag these:</p>
+    <table>
+      <tr>
+        <th>Criterion Type</th>
+        <th>Evidence Location</th>
+        <th>VERIDOC Action</th>
+      </tr>
+      <tr>
+        <td>Internal (e.g., turnover)</td>
+        <td>In bid documents</td>
+        <td>Retrieve full chain</td>
+      </tr>
+      <tr>
+        <td>External (e.g., no debarment)</td>
+        <td>Government registry</td>
+        <td>Generate checklist for officer</td>
+      </tr>
+      <tr>
+        <td>Certification (e.g., ISO)</td>
+        <td>Certificate in bid + auditor registry</td>
+        <td>Retrieve cert, suggest manual verification</td>
+      </tr>
+    </table>
+
+    <h4>Technologies</h4>
+    <div class="tech-stack">
+      <div class="tech-item">
+        <strong>IndexRAG</strong>
+        <span>Multi-hop evidence chaining</span>
+      </div>
+      <div class="tech-item">
+        <strong>Faiss/Milvus</strong>
+        <span>Vector similarity search</span>
+      </div>
+      <div class="tech-item">
+        <strong>IndicBERT</strong>
+        <span>Embeddings for Indian names/text</span>
+      </div>
+    </div>
+
+    <h4>Output Format</h4>
+    <div class="code">
+{
+  "criterion_id": "crit_001",
+  "evidence_chain": [
+    {
+      "step": 1,
+      "text": "Annual turnover ₹50 crores",
+      "source": "Bid letter, page 2",
+      "chunk_id": "chunk_042",
+      "confidence": 0.96
+    },
+    {
+      "step": 2,
+      "text": "[P&L statement showing revenue ₹50 Cr]",
+      "source": "Financial statements, pages 4-5",
+      "chunk_id": "chunk_156",
+      "confidence": 0.92
+    },
+    {
+      "step": 3,
+      "text": "P&L verified by Chartered Accountant",
+      "source": "Audit certificate, page 6",
+      "chunk_id": "chunk_201",
+      "confidence": 0.94
+    }
+  ],
+  "chain_completeness": 0.95,
+  "chain_confidence": 0.94
+}
+    </div>
+
+    <div class="box warning">
+      <h4>Validation Gate</h4>
+      <p><strong>Phase 2, Week 6</strong>: Test evidence mapper on 20 real bidder submissions. Measure chain completeness (do we get 2-4 connected chunks per criterion?) and accuracy (do officer reviewers agree with the chains we built?).</p>
+    </div>
+  </div>
+
+  <h2>Layer 4: Verdict Engine</h2>
+  
+  <div class="layer-box layer4">
+    <h3>Purpose</h3>
+    <p>Evaluate the evidence against each criterion and produce a verdict: <span class="highlight">PASS</span>, <span class="highlight">FAIL</span>, or <span class="highlight">REVIEW</span>.</p>
+
+    <h4>The Three-Axis Framework</h4>
+    <p>Instead of one overall score, we evaluate on three independent axes. This gives clarity on <em>why</em> we made the decision.</p>
+
+    <table>
+      <tr>
+        <th>Axis</th>
+        <th>What It Measures</th>
+        <th>Example</th>
+      </tr>
+      <tr>
+        <td><strong>Axis 1: Evidence Quality</strong></td>
+        <td>Is the evidence legible, complete, and properly formatted? (0–100%)</td>
+        <td>OCR confidence 0.94, all pages present, clear structure</td>
+      </tr>
+      <tr>
+        <td><strong>Axis 2: Semantic Match</strong></td>
+        <td>Does the evidence address the criterion? (0–100%)</td>
+        <td>P&L statement matches "financial statement" requirement</td>
+      </tr>
+      <tr>
+        <td><strong>Axis 3: Threshold Compliance</strong></td>
+        <td>Does the value meet the requirement? (0–100%)</td>
+        <td>₹50 crore > ₹5 crore required</td>
+      </tr>
+    </table>
+
+    <h4>Decision Logic</h4>
+    <p><strong>Not a formula, but a decision tree.</strong> We explicitly define thresholds (not "weighted products"):</p>
+    
+    <div class="code">
+if any(axis1 &lt; 20, axis2 &lt; 20, axis3 &lt; 20):
+    verdict = FAIL  # Veto: critical axis is below threshold
+elif all(axis1 ≥ 80, axis2 ≥ 80, axis3 ≥ 80):
+    verdict = PASS  # Strong evidence on all fronts
+elif any(50 &lt;= axis &lt; 80) or mean(axis1,2,3) in [55, 79]:
+    verdict = REVIEW  # Borderline: human judgment needed
+elif any(axis1 in [20,50]) or any(axis2 in [20,50]):
+    verdict = REVIEW  # Moderate evidence on some axes
+else:
+    verdict = FAIL  # Low confidence overall
+    </div>
+
+    <h4>Per-Axis Thresholds Explained</h4>
+    <div class="grid-2">
+      <div class="box neutral">
+        <h4>Axis 1: Evidence Quality</h4>
+        <p><strong>&lt;20%:</strong> Unreadable (OCR &lt;0.7, missing pages)</p>
+        <p><strong>20–50%:</strong> Poor quality (OCR 0.7–0.85, partial docs)</p>
+        <p><strong>50–80%:</strong> Fair (OCR 0.85–0.92, minor gaps)</p>
+        <p><strong>≥80%:</strong> High quality (OCR &gt;0.92, complete)</p>
+      </div>
+      <div class="box neutral">
+        <h4>Axis 2: Semantic Match</h4>
+        <p><strong>&lt;20%:</strong> Wrong document type (résumé for "financial statement")</p>
+        <p><strong>20–50%:</strong> Partial match (summary instead of detail)</p>
+        <p><strong>50–80%:</strong> Good match (slight format variation)</p>
+        <p><strong>≥80%:</strong> Perfect match (right doc, right format)</p>
+      </div>
+    </div>
+
+    <h4>Technologies</h4>
+    <div class="tech-stack">
+      <div class="tech-item">
+        <strong>Claude Sonnet 4</strong>
+        <span>LLM reasoning + structured output</span>
+      </div>
+      <div class="tech-item">
+        <strong>Structured Output Format</strong>
+        <span>JSON verdict schema</span>
+      </div>
+      <div class="tech-item">
+        <strong>Rule Engine</strong>
+        <span>Decision tree implementation</span>
+      </div>
+    </div>
+
+    <h4>Output Format</h4>
+    <div class="code">
+{
+  "criterion_id": "crit_001",
+  "bidder_id": "bid_001",
+  "axis_scores": {
+    "evidence_quality": 94,
+    "semantic_match": 88,
+    "threshold_compliance": 100
+  },
+  "verdict": "PASS",
+  "reasoning": "All three axes strong. P&L clearly shows ₹50Cr > ₹5Cr required.",
+  "pdf_highlights": [
+    { "page": 5, "bbox": [100, 200, 300, 220] }
+  ],
+  "counterfactual": null,
+  "confidence": 0.96
+}
+    </div>
+
+    <div class="box success">
+      <h4>Counterfactual Guidance (FAIL Cases Only)</h4>
+      <p>For every FAIL verdict, we generate: "If you submit [X] covering period [Y] attested by [Z], this criterion passes."</p>
+      <p><strong>Requirement:</strong> GFR 2017 Rule 204 (right to recourse)</p>
+    </div>
+
+    <div class="box warning">
+      <h4>Validation Gates</h4>
+      <p><strong>Phase 2, Week 8:</strong> Test verdict logic on 20 sample cases with CRPF officers. Validate thresholds are sensible.</p>
+      <p><strong>Phase 3, Week 12:</strong> Validate collusion detection on 50+ real tenders (precision ≥ 85%).</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION: DATA FLOW -->
+<div class="section" id="data-flow">
+  <div class="section-title">End-to-End Data Flow</div>
+
+  <h2>A Tender Arrives: Step-by-Step</h2>
+
+  <h3>Step 1: Officer uploads tender + bids</h3>
+  <div class="flow">
+    <div class="flow-item">Tender PDF</div>
+    <span class="flow-arrow">+</span>
+    <div class="flow-item">10 bid folders</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item">API upload</div>
+  </div>
+
+  <h3>Step 2: System processes (Layers 1–2)</h3>
+  <div class="box info">
+    <p><strong>Layer 1</strong> converts all documents to text + bounding boxes</p>
+    <p><strong>Layer 2</strong> extracts criteria from tender → obligation graph</p>
+    <p>Database stores: documents, chunks, criteria</p>
+  </div>
+
+  <h3>Step 3: For each bidder (Layers 3–4)</h3>
+  <div class="box info">
+    <p><strong>Layer 3</strong> retrieves evidence chains for each criterion</p>
+    <p><strong>Layer 4</strong> scores on 3 axes → PASS/FAIL/REVIEW verdict</p>
+    <p>Database stores: verdicts, scores, evidence chains</p>
+  </div>
+
+  <h3>Step 4: Officer reviews results</h3>
+  <div class="box info">
+    <p>Frontend shows per-bidder summary + per-criterion details</p>
+    <p>Green (PASS), Red (FAIL), Amber (REVIEW)</p>
+    <p>Officer can click to see PDF evidence + reasoning</p>
+  </div>
+
+  <h3>Step 5: Officer overrides (if needed)</h3>
+  <div class="box info">
+    <p>Officer disagrees with a verdict → clicks "Override"</p>
+    <p>Structured form captures: which axis was wrong, correct label, evidence location</p>
+    <p>Correction stored in DB for later retraining</p>
+  </div>
+
+  <h3>Step 6: Export final report</h3>
+  <div class="box success">
+    <p>PDF report with: executive summary, per-bidder verdicts, PDF citations, audit trail</p>
+    <p>Officer signs off → tender evaluation complete</p>
+  </div>
+
+  <h2>Monthly: Active Learning Cycle</h2>
+  <div class="flow">
+    <div class="flow-item">200+ corrections accumulated</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item">Senior analyst validates sample</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item">Fine-tune LegalBERT + verdict engine</div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-item">Deploy improved models</div>
+  </div>
+</div>
+
+<!-- SECTION: DATABASE SCHEMA -->
+<div class="section" id="database">
+  <div class="section-title">Database Design</div>
+
+  <p>PostgreSQL is used for transactional data (documents, verdicts, corrections). Vector embeddings are stored separately in Faiss for fast retrieval.</p>
+
+  <h3>Core Tables</h3>
+
+  <table>
+    <tr>
+      <th>Table</th>
+      <th>Purpose</th>
+      <th>Key Fields</th>
+    </tr>
+    <tr>
+      <td><code>tenders</code></td>
+      <td>One row per tender</td>
+      <td>tender_id, name, criteria_count, created_at</td>
+    </tr>
+    <tr>
+      <td><code>criteria</code></td>
+      <td>Extracted rules from tender</td>
+      <td>criterion_id, tender_id, name, modal, threshold, dependencies</td>
+    </tr>
+    <tr>
+      <td><code>bidders</code></td>
+      <td>Companies bidding on tenders</td>
+      <td>bidder_id, company_name, registration_number, tender_id</td>
+    </tr>
+    <tr>
+      <td><code>documents</code></td>
+      <td>Uploaded bid documents</td>
+      <td>doc_id, bidder_id, filename, page_count, file_type, ocr_confidence</td>
+    </tr>
+    <tr>
+      <td><code>chunks</code></td>
+      <td>OCR-extracted text segments</td>
+      <td>chunk_id, doc_id, text, page, bbox, confidence, embedding_id</td>
+    </tr>
+    <tr>
+      <td><code>verdicts</code></td>
+      <td>Final decisions per criterion</td>
+      <td>verdict_id, criterion_id, bidder_id, axis_scores, verdict, confidence, counterfactual</td>
+    </tr>
+    <tr>
+      <td><code>corrections</code></td>
+      <td>Officer feedback for retraining</td>
+      <td>correction_id, verdict_id, axis_wrong, correct_label, officer_id, timestamp, validated</td>
+    </tr>
+    <tr>
+      <td><code>audit_log</code></td>
+      <td>Complete decision trail</td>
+      <td>log_id, action, user_id, timestamp, details</td>
+    </tr>
+  </table>
+
+  <h3>Relationships (Simplified ERD)</h3>
+  <div class="diagram">
+tenders (1) ──→ (many) criteria
+          ├──→ (many) bidders
+          └──→ (many) documents
+          
+bidders (1) ──→ (many) documents
+        └──→ (many) verdicts
+
+documents (1) ──→ (many) chunks
+          ├──→ (many) verdicts
+          └──→ (many) evidence_chains
+
+verdicts (1) ──→ (many) corrections
+        └──→ (many) audit_logs
+  </div>
+</div>
+
+<!-- SECTION: API DESIGN -->
+<div class="section" id="api">
+  <div class="section-title">API Endpoints (FastAPI)</div>
+
+  <p>The backend exposes REST endpoints for document upload, evaluation, and feedback. All endpoints return JSON.</p>
+
+  <h3>Tender Management</h3>
+  <table>
+    <tr>
+      <th>Endpoint</th>
+      <th>Method</th>
+      <th>Purpose</th>
+    </tr>
+    <tr>
+      <td><code>/tender/upload</code></td>
+      <td>POST</td>
+      <td>Upload tender PDF → extract criteria → save to DB</td>
+    </tr>
+    <tr>
+      <td><code>/tender/{id}/criteria</code></td>
+      <td>GET</td>
+      <td>Get extracted criteria for a tender (for review)</td>
+    </tr>
+    <tr>
+      <td><code>/tender/{id}/evaluate</code></td>
+      <td>POST</td>
+      <td>Start evaluation (takes ~5-10 min)</td>
+    </tr>
+  </table>
+
+  <h3>Bid Evaluation</h3>
+  <table>
+    <tr>
+      <th>Endpoint</th>
+      <th>Method</th>
+      <th>Purpose</th>
+    </tr>
+    <tr>
+      <td><code>/bidder/upload</code></td>
+      <td>POST</td>
+      <td>Upload bid documents (multi-format)</td>
+    </tr>
+    <tr>
+      <td><code>/bidder/{id}/verdicts</code></td>
+      <td>GET</td>
+      <td>Get all verdicts for a bidder</td>
+    </tr>
+    <tr>
+      <td><code>/bidder/{id}/evidence/{criterion_id}</code></td>
+      <td>GET</td>
+      <td>Get evidence chain for a specific criterion</td>
+    </tr>
+    <tr>
+      <td><code>/verdicts/summary</code></td>
+      <td>GET</td>
+      <td>Summary: counts of PASS/FAIL/REVIEW for all bidders</td>
+    </tr>
+  </table>
+
+  <h3>Officer Actions</h3>
+  <table>
+    <tr>
+      <th>Endpoint</th>
+      <th>Method</th>
+      <th>Purpose</th>
+    </tr>
+    <tr>
+      <td><code>/verdict/{id}/override</code></td>
+      <td>POST</td>
+      <td>Officer disagrees → submit correction</td>
+    </tr>
+    <tr>
+      <td><code>/report/export</code></td>
+      <td>GET</td>
+      <td>Generate final PDF report (tender + all verdicts + audit trail)</td>
+    </tr>
+    <tr>
+      <td><code>/audit-log</code></td>
+      <td>GET</td>
+      <td>Complete audit trail (all decisions + overrides)</td>
+    </tr>
+  </table>
+
+  <h3>Example Request/Response</h3>
+  <div class="code">
+POST /verdict/v123/override
+{
+  "correct_verdict": "PASS",
+  "axis_wrong": 2,
+  "reason": "Evidence clearly matches criterion",
+  "officer_id": "officer_456"
+}
+
+Response:
+{
+  "correction_id": "corr_789",
+  "status": "captured",
+  "message": "Override recorded. Thank you for the feedback."
+}
+  </div>
+</div>
+
+<!-- SECTION: TECH STACK -->
+<div class="section" id="tech-stack">
+  <div class="section-title">Technology Stack & Justification</div>
+
+  <h2>Why Each Choice?</h2>
+
+  <div class="grid-2">
+    <div class="box">
+      <h4>PaddleOCR-VL-0.9B</h4>
+      <p><strong>Why:</strong> State-of-the-art accuracy on scanned documents + 109 languages including Indian scripts. Self-hosted (no API calls = faster + private).</p>
+      <p><strong>Cost:</strong> $0.09/1K pages self-hosted</p>
+    </div>
+
+    <div class="box">
+      <h4>LegalBERT</h4>
+      <p><strong>Why:</strong> Trained on legal text. Fine-tuning on CRPF tenders teaches it domain language (GFR, PSU, etc.).</p>
+      <p><strong>Trade-off:</strong> Slower than RoBERTa but better at legal reasoning</p>
+    </div>
+
+    <div class="box">
+      <h4>IndexRAG</h4>
+      <p><strong>Why:</strong> Handles complex evidence requiring multiple documents. Naive RAG would miss connections.</p>
+      <p><strong>Cost:</strong> Build time is higher; retrieval is slower (mitigated by smaller search space)</p>
+    </div>
+
+    <div class="box">
+      <h4>Claude Sonnet 4</h4>
+      <p><strong>Why:</strong> Best-in-class reasoning on complex criteria. Structured output mode ensures consistent JSON.</p>
+      <p><strong>Cost:</strong> ~$0.15–0.25 per criterion. Manageable at 500 criteria × 10 bidders = ~$1K per tender</p>
+    </div>
+
+    <div class="box">
+      <h4>FastAPI</h4>
+      <p><strong>Why:</strong> Async Python. Fast, modern, easy to test. Fits well with NLP pipelines.</p>
+      <p><strong>Alternative:</strong> Could use Django REST but FastAPI is lighter</p>
+    </div>
+
+    <div class="box">
+      <h4>PostgreSQL</h4>
+      <p><strong>Why:</strong> Relational + proven. Audit logs need ACID transactions. JSON columns for flexible metadata.</p>
+      <p><strong>Alternative:</strong> Could use MongoDB but PostgreSQL is more audit-friendly</p>
+    </div>
+
+    <div class="box">
+      <h4>React + PDF.js</h4>
+      <p><strong>Why:</strong> Client-side PDF rendering. Allows bounding-box overlays directly on PDF without re-rendering.</p>
+      <p><strong>Alternative:</strong> Could use Svelte but React is more standard</p>
+    </div>
+
+    <div class="box">
+      <h4>Faiss/Milvus</h4>
+      <p><strong>Why:</strong> Fast vector search for evidence retrieval. Self-hosted = data privacy. Faiss for dev, Milvus for production scale.</p>
+      <p><strong>Cost:</strong> Open source</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION: TIMELINE -->
+<div class="section" id="timeline">
+  <div class="section-title">Implementation Timeline (20 Weeks)</div>
+
+  <h2>Phase 1: Foundation (Weeks 1–3)</h2>
+  
+  <div class="box neutral">
+    <p><strong>Goal:</strong> Set up infrastructure + validate LegalBERT on CRPF domain</p>
+    
+    <h4>Week 1</h4>
+    <ul>
+      <li><span class="badge phase1">Task</span> Set up FastAPI + PostgreSQL</li>
+      <li><span class="badge phase1">Task</span> Deploy PaddleOCR self-hosted</li>
+      <li><span class="badge phase1">Task</span> Build multi-format document handler (PDF, DOCX, XLSX, images)</li>
+      <li><span class="badge phase1">Task</span> Create database schema (tables: documents, chunks, criteria, verdicts, corrections)</li>
+    </ul>
+
+    <h4>Week 2</h4>
+    <ul>
+      <li><span class="badge phase1">Task</span> Collect 50+ CRPF tender documents + sample bids</li>
+      <li><span class="badge phase1">Task</span> Fine-tune LegalBERT on 40 documents (80/20 train/val split)</li>
+      <li><span class="badge validation">VALIDATION GATE</span> Test on 5 hold-out tenders: F1 ≥ 0.75 on obligation extraction?</li>
+      <li class="status-critical">If F1 &lt; 0.75: expand to 100 documents, re-tune (adds 1 week)</li>
+    </ul>
+
+    <h4>Week 3</h4>
+    <ul>
+      <li><span class="badge phase1">Task</span> Complete obligation graph builder (dependency DAG)</li>
+      <li><span class="badge phase1">Task</span> Test OCR pipeline on 5 representative bids (all formats)</li>
+      <li><span class="badge phase1">Task</span> Build bounding-box reference system</li>
+    </ul>
+  </div>
+
+  <h2>Phase 2: Core Reasoning (Weeks 4–9)</h2>
+  
+  <div class="box neutral">
+    <p><strong>Goal:</strong> Build evidence mapper + verdict engine</p>
+    
+    <h4>Weeks 4–5</h4>
+    <ul>
+      <li><span class="badge phase2">Task</span> Set up Faiss vector store + embeddings pipeline</li>
+      <li><span class="badge phase2">Task</span> Implement IndexRAG: build evidence chains at index time</li>
+      <li><span class="badge phase2">Task</span> Test retrieval on toy examples (verified manually)</li>
+    </ul>
+
+    <h4>Weeks 6–7</h4>
+    <ul>
+      <li><span class="badge phase2">Task</span> Integrate Claude Sonnet 4 for verdict reasoning</li>
+      <li><span class="badge phase2">Task</span> Implement 3-axis decision logic (not "weighted product")</li>
+      <li><span class="badge phase2">Task</span> Define explicit REVIEW thresholds per axis</li>
+      <li><span class="badge validation">VALIDATION GATE</span> Test on 20 real bidder submissions: chain completeness OK? Officer agreement &gt; 80%?</li>
+    </ul>
+
+    <h4>Weeks 8–9</h4>
+    <ul>
+      <li><span class="badge phase2">Task</span> Classify criteria as "internal" vs. "external" evidence</li>
+      <li><span class="badge phase2">Task</span> Build verification checklist generator for external evidence</li>
+      <li><span class="badge phase2">Task</span> End-to-end test: tender → criteria → evidence → verdicts</li>
+    </ul>
+  </div>
+
+  <h2>Phase 3: Explainability & UI (Weeks 10–15)</h2>
+  
+  <div class="box neutral">
+    <p><strong>Goal:</strong> Build user interface + governance modules</p>
+    
+    <h4>Weeks 10–11</h4>
+    <ul>
+      <li><span class="badge phase3">Task</span> React frontend: verdict list view + PDF viewer</li>
+      <li><span class="badge phase3">Task</span> PDF.js integration: render bounding-box overlays</li>
+      <li><span class="badge phase3">Task</span> Click-to-evidence: officer clicks verdict → PDF highlights evidence</li>
+    </ul>
+
+    <h4>Weeks 12–13</h4>
+    <ul>
+      <li><span class="badge phase3">Task</span> Officer review form (structured feedback capture)</li>
+      <li><span class="badge phase3">Task</span> Counterfactual recourse generator</li>
+      <li><span class="badge phase3">Task</span> Collusion detection module (bidder graph + 6 anomaly checks)</li>
+      <li><span class="badge validation">VALIDATION GATE</span> Test collusion on 50+ real CRPF tenders: precision ≥ 85%?</li>
+    </ul>
+
+    <h4>Weeks 14–15</h4>
+    <ul>
+      <li><span class="badge phase3">Task</span> Audit report generation (PDF export with citations)</li>
+      <li><span class="badge phase3">Task</span> UI polish + usability testing with CRPF officers</li>
+    </ul>
+  </div>
+
+  <h2>Phase 4: Learning & Deployment (Weeks 16–20)</h2>
+  
+  <div class="box neutral">
+    <p><strong>Goal:</strong> Close the feedback loop + deploy to sandbox</p>
+    
+    <h4>Week 16</h4>
+    <ul>
+      <li><span class="badge phase4">Task</span> Correction validation gate (senior analyst review every 50 corrections)</li>
+      <li><span class="badge phase4">Task</span> Bias detection dashboard (per-officer, per-bidder override rates)</li>
+    </ul>
+
+    <h4>Week 17</h4>
+    <ul>
+      <li><span class="badge phase4">Task</span> Active learning retraining pipeline (200 corrections → retrain)</li>
+      <li><span class="badge phase4">Task</span> Deploy models + test on sandbox tenders</li>
+    </ul>
+
+    <h4>Weeks 18–20</h4>
+    <ul>
+      <li><span class="badge phase4">Task</span> Full system integration testing</li>
+      <li><span class="badge phase4">Task</span> Documentation + deployment guide</li>
+      <li><span class="badge phase4">Task</span> Training materials for CRPF officers</li>
+      <li><span class="badge phase4">Task</span> Go-live: sandbox evaluation with sample tenders</li>
+    </ul>
+  </div>
+
+  <h2>Timeline Summary</h2>
+  <table>
+    <tr>
+      <th>Phase</th>
+      <th>Duration</th>
+      <th>Key Deliverable</th>
+      <th>Blocking Gates</th>
+    </tr>
+    <tr>
+      <td>1: Foundation</td>
+      <td>3 weeks</td>
+      <td>Infrastructure + LegalBERT validation</td>
+      <td>F1 ≥ 0.75</td>
+    </tr>
+    <tr>
+      <td>2: Core Reasoning</td>
+      <td>6 weeks</td>
+      <td>Evidence mapper + verdict engine</td>
+      <td>Chain completeness, officer agreement</td>
+    </tr>
+    <tr>
+      <td>3: UI + Governance</td>
+      <td>6 weeks</td>
+      <td>Frontend + collusion validation</td>
+      <td>Collusion precision ≥ 85%</td>
+    </tr>
+    <tr>
+      <td>4: Learning + Deployment</td>
+      <td>5 weeks</td>
+      <td>Full system in sandbox</td>
+      <td>None (all gates passed)</td>
+    </tr>
+  </table>
+</div>
+
+<!-- SECTION: RISKS -->
+<div class="section" id="risks">
+  <div class="section-title">Risks & Mitigations</div>
+
+  <h2>Critical Risks</h2>
+
+  <div class="box danger">
+    <h4>Risk 1: LegalBERT Doesn't Learn CRPF Domain</h4>
+    <p><strong>Severity:</strong> CRITICAL | <strong>Timeline impact:</strong> +2–4 weeks</p>
+    <p><strong>What could go wrong:</strong> LegalBERT fine-tuned on 40–50 documents isn't enough to learn CRPF's specific language (abbreviations, modal conventions, regulatory references).</p>
+    <p><strong>Mitigation:</strong> Validation gate at Week 2. If F1 &lt; 0.75 on hold-out tenders, immediately expand to 100+ documents before proceeding to Phase 2.</p>
+    <p><strong>Contingency:</strong> Have a domain expert manually annotate 100 tenders if time permits.</p>
+  </div>
+
+  <div class="box danger">
+    <h4>Risk 2: Evidence Mapper Returns Incomplete Chains</h4>
+    <p><strong>Severity:</strong> CRITICAL | <strong>Timeline impact:</strong> +1–2 weeks</p>
+    <p><strong>What could go wrong:</strong> IndexRAG retrieves 10+ disconnected chunks instead of a coherent 2–4 chunk chain.</p>
+    <p><strong>Mitigation:</strong> Phase 2, Week 6 validation. Test on 20 real scenarios. If chains are poor, add post-retrieval consolidation (merge overlapping chunks, drop noise).</p>
+    <p><strong>Contingency:</strong> Fall back to simpler RAG + manual chain assembly for Phase 2.</p>
+  </div>
+
+  <div class="box danger">
+    <h4>Risk 3: Officers Don't Trust the System</h4>
+    <p><strong>Severity:</strong> HIGH | <strong>Timeline impact:</strong> +1–2 weeks (more testing needed)</p>
+    <p><strong>What could go wrong:</strong> Officers see verdicts and assume the system is wrong, overriding most decisions rather than using it.</p>
+    <p><strong>Mitigation:</strong> Start in "advisory" mode (first 2 tenders). Show officers the PDF evidence + reasoning side-by-side so they can audit our logic. Iterate UI based on feedback.</p>
+    <p><strong>Contingency:</strong> If adoption is low, consider simplifying verdicts to just "clearly eligible" vs. "clearly ineligible" vs. "ambiguous" (less nuance, but easier to trust).</p>
+  </div>
+
+  <h2>High-Priority Risks</h2>
+
+  <div class="box warning">
+    <h4>Risk 4: Collusion Detection False Positives</h4>
+    <p><strong>Severity:</strong> HIGH | <strong>Timeline impact:</strong> +1 week</p>
+    <p><strong>What could go wrong:</strong> OECD data says 81–95% accuracy, but CRPF tenders have different patterns. Identical bids might be legal (template use).</p>
+    <p><strong>Mitigation:</strong> Phase 3, Week 12 validation on 50+ real CRPF tenders. Only show flags with precision ≥ 85%. Mark module as "advisory."</p>
+    <p><strong>Contingency:</strong> If precision is &lt;85%, disable collusion flags for now; label as "future enhancement."</p>
+  </div>
+
+  <div class="box warning">
+    <h4>Risk 5: System Drifts with Officer Bias During Retraining</h4>
+    <p><strong>Severity:</strong> MEDIUM | <strong>Timeline impact:</strong> None (caught in monitoring)</p>
+    <p><strong>What could go wrong:</strong> A biased officer consistently overrides verdicts in favor of certain bidder types. Retraining learns the bias.</p>
+    <p><strong>Mitigation:</strong> Implement correction validation gate (Phase 4, Week 16). Senior analyst reviews 10 out of every 50 corrections. Bias dashboard tracks per-officer and per-bidder override rates.</p>
+    <p><strong>Contingency:</strong> If bias is detected (2x higher override rate), flag officer for coaching or audit.</p>
+  </div>
+
+  <h2>Medium-Priority Risks</h2>
+
+  <div class="box warning">
+    <h4>Risk 6: Scanned Documents Have Low OCR Confidence</h4>
+    <p><strong>Severity:</strong> MEDIUM | <strong>Timeline impact:</strong> None (expected)</p>
+    <p><strong>What could go wrong:</strong> Some CRPF bids are photocopies of handwritten forms. OCR confidence drops below 0.7.</p>
+    <p><strong>Mitigation:</strong> By design: these get flagged as REVIEW (low Axis 1 score). Officer reviews manually.</p>
+    <p><strong>Contingency:</strong> Have a fallback to manual data entry form for low-confidence docs.</p>
+  </div>
+
+  <div class="box warning">
+    <h4>Risk 7: No Coverage for External Evidence (GST registry, debarment DB)</h4>
+    <p><strong>Severity:</strong> MEDIUM | <strong>Timeline impact:</strong> None (by design)</p>
+    <p><strong>What could go wrong:</strong> Some criteria require verification against external databases (is the GST number real? is the bidder debarred?)</p>
+    <p><strong>Mitigation:</strong> Flag as "external evidence" at extraction time. Generate officer checklist: "Verify against [registry] using [link]."</p>
+    <p><strong>Contingency:</strong> Phase 5 (future): integrate with CRPF registry APIs.</p>
+  </div>
+</div>
+
+<!-- SECTION: SUCCESS METRICS -->
+<div class="section" id="success">
+  <div class="section-title">Success Metrics & Evaluation Criteria</div>
+
+  <h2>How We Know VERIDOC Works</h2>
+
+  <table>
+    <tr>
+      <th>Metric</th>
+      <th>Target</th>
+      <th>Measurement</th>
+      <th>Why It Matters</th>
+    </tr>
+    <tr>
+      <td><strong>LegalBERT F1 (obligation extraction)</strong></td>
+      <td>≥ 0.75</td>
+      <td>Test on 5 hold-out CRPF tenders</td>
+      <td>We can't evaluate bids if we don't extract rules correctly</td>
+    </tr>
+    <tr>
+      <td><strong>Evidence chain completeness</strong></td>
+      <td>2–4 chunks per criterion</td>
+      <td>Manual review of 20 real scenarios</td>
+      <td>Chains should be complete but not noisy</td>
+    </tr>
+    <tr>
+      <td><strong>Verdict accuracy (vs. officer)</strong></td>
+      <td>≥ 85%</td>
+      <td>Compare auto-verdicts to officer review on 50 criteria</td>
+      <td>Most verdicts should not require human override</td>
+    </tr>
+    <tr>
+      <td><strong>Collusion false positive rate</strong></td>
+      <td>≤ 15%</td>
+      <td>Test on 50+ real CRPF tenders (labeled by officers)</td>
+      <td>Officers need to trust the flags, not ignore them</td>
+    </tr>
+    <tr>
+      <td><strong>Evaluation time per tender</strong></td>
+      <td>&lt; 2 hours for 100 criteria × 10 bidders</td>
+      <td>Clock it on sandbox tenders</td>
+      <td>Must be faster than manual (which takes days)</td>
+    </tr>
+    <tr>
+      <td><strong>Audit trail completeness</strong></td>
+      <td>100%</td>
+      <td>Every decision logged with timestamp, user, reason</td>
+      <td>Legal requirement for government procurement</td>
+    </tr>
+    <tr>
+      <td><strong>Active learning improvement</strong></td>
+      <td>200 corrections → F1 +5%</td>
+      <td>Track model F1 before/after retraining</td>
+      <td>System should improve over time with feedback</td>
+    </tr>
+    <tr>
+      <td><strong>Officer adoption rate</strong></td>
+      <td>≥ 80% of verdicts used (not overridden)</td>
+      <td>Count overrides in audit log</td>
+      <td>If adoption is low, system failed</td>
+    </tr>
+  </table>
+
+  <h2>Definition of Done (per phase)</h2>
+
+  <div class="checklist">
+    <li>All Phase deliverables completed</li>
+    <li>All validation gates passed (or documented mitigations in place)</li>
+    <li>Code tested (unit + integration)</li>
+    <li>Database schema validated</li>
+    <li>API endpoints functional</li>
+    <li>Documentation written</li>
+    <li>No critical security issues</li>
+    <li>Performance benchmarked (latency &lt; defined target)</li>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footnote">
+  <strong>Document Version:</strong> 1.0 Draft | <strong>Last Updated:</strong> May 2026 | <strong>Status:</strong> Ready for Implementation | <strong>Team:</strong> Diamond
+</div>
+
+</body>
+</html>
