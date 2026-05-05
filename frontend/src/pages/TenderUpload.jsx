@@ -385,11 +385,11 @@ export default function TenderUpload() {
 
       {/* Actions */}
       <div className="obw-actions">
-        <button className="btn btn-outline" onClick={() => nav('/tenders')}>
+        <button className="obw-btn-draft" onClick={() => nav('/tenders')}>
           <span className="material-symbols-outlined" style={{ fontSize: 16 }}>pause</span>
           Save Draft
         </button>
-        <button className="btn btn-primary" onClick={handleCommence} disabled={!step1Done || ingesting}>
+        <button className="obw-btn-commence" onClick={handleCommence} disabled={!step1Done || ingesting}>
           {ingesting
             ? <><span className="loading-spinner" /> Starting...</>
             : <><span className="material-symbols-outlined" style={{ fontSize: 16 }}>play_arrow</span> Commence Ingestion</>}

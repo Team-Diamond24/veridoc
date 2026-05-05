@@ -1,5 +1,11 @@
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 
+/*
+  ForensicLayout — pixel-faithful translation of the HTML mockup.
+  Structure mirrors the mockup's <header>, <aside>, <main> exactly.
+  All nav links wire to real React Router routes.
+*/
+
 const SIDEBAR_NAV = [
   { to: '/',         icon: 'dashboard',    label: 'Dashboard',         end: true },
   { to: '/tenders',  icon: 'gavel',        label: 'Tender Analysis' },
@@ -21,10 +27,12 @@ export default function ForensicLayout() {
 
   return (
     <div className="fl-root">
-      {/* ── Top Header ── */}
+      {/* ── TopAppBar ── */}
       <header className="fl-header">
         <div className="fl-header-left">
-          <span className="fl-brand">ProcureAudit Forensic</span>
+          <div className="fl-brand">
+            ProcureAudit Forensic
+          </div>
           <nav className="fl-header-nav">
             {HEADER_NAV.map(item => (
               <a
@@ -46,9 +54,9 @@ export default function ForensicLayout() {
       </header>
 
       <div className="fl-body">
-        {/* ── Sidebar ── */}
+        {/* ── SideNavBar ── */}
         <aside className="fl-sidebar">
-          {/* Branding */}
+          {/* Org branding block */}
           <div className="fl-sidebar-brand">
             <div className="fl-sidebar-logo">
               <span className="material-symbols-outlined">account_balance</span>
@@ -62,12 +70,12 @@ export default function ForensicLayout() {
           {/* New Evaluation button */}
           <div className="fl-sidebar-btn-wrap">
             <button className="fl-new-eval-btn" onClick={() => navigate('/tenders/upload')}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
-              New Evaluation
+              <span className="material-symbols-outlined">add</span>
+              <span>New Evaluation</span>
             </button>
           </div>
 
-          {/* Main nav */}
+          {/* Main nav links */}
           <nav className="fl-sidebar-nav">
             {SIDEBAR_NAV.map(item => (
               <NavLink
@@ -86,20 +94,22 @@ export default function ForensicLayout() {
 
           {/* Bottom links */}
           <div className="fl-sidebar-bottom">
-            <span className="fl-nav-link" style={{ cursor: 'default' }}>
+            <span className="fl-nav-link">
               <span className="material-symbols-outlined fl-nav-icon">settings</span>
               <span>Settings</span>
             </span>
-            <span className="fl-nav-link" style={{ cursor: 'default' }}>
+            <span className="fl-nav-link">
               <span className="material-symbols-outlined fl-nav-icon">help_outline</span>
               <span>Support</span>
             </span>
           </div>
         </aside>
 
-        {/* ── Page content ── */}
+        {/* ── Main Content Canvas ── */}
         <main className="fl-main">
-          <Outlet />
+          <div className="fl-main-inner">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
