@@ -16,10 +16,18 @@ const SIDEBAR_NAV = [
   { to: '/audit',    icon: 'receipt_long', label: 'Audit Trail' },
 ];
 
+const FONT_SIZES = [14, 16, 18]; // small, default, large (px)
+
 export default function ForensicLayout() {
   const [collapsed, setCollapsed] = useState(false);
+  const [fontLevel, setFontLevel] = useState(1); // 0=small, 1=default, 2=large
   const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  const applyFont = (level) => {
+    setFontLevel(level);
+    document.documentElement.style.fontSize = FONT_SIZES[level] + 'px';
+  };
 
   return (
     <div className={`gp-root ${collapsed ? 'sidebar-collapsed' : ''}`}>
@@ -37,9 +45,21 @@ export default function ForensicLayout() {
             <span className="gp-utility-label hide-mobile">Screen Reader</span>
           </div>
           <div className="gp-utility-right">
-            <button className="gp-font-btn">A<sup>-</sup></button>
-            <button className="gp-font-btn gp-font-active">A</button>
-            <button className="gp-font-btn">A<sup>+</sup></button>
+            <button
+              className={`gp-font-btn${fontLevel === 0 ? ' gp-font-active' : ''}`}
+              onClick={() => applyFont(0)}
+              title="Decrease font size"
+            >A<sup>-</sup></button>
+            <button
+              className={`gp-font-btn${fontLevel === 1 ? ' gp-font-active' : ''}`}
+              onClick={() => applyFont(1)}
+              title="Default font size"
+            >A</button>
+            <button
+              className={`gp-font-btn${fontLevel === 2 ? ' gp-font-active' : ''}`}
+              onClick={() => applyFont(2)}
+              title="Increase font size"
+            >A<sup>+</sup></button>
             <span className="gp-utility-sep">|</span>
             <button className="gp-login-btn">Login</button>
             <button className="gp-register-btn">Register</button>
