@@ -31,7 +31,7 @@ export default function ForensicLayout() {
       <header className="fl-header">
         <div className="fl-header-left">
           <div className="fl-brand">
-            ProcureAudit Forensic
+            VeriDoc
           </div>
           <nav className="fl-header-nav">
             {HEADER_NAV.map(item => (
