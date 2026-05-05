@@ -28,9 +28,9 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Noto Sans', sans-serif;
-  background: var(--gov-bg);
-  color: var(--gov-text);
+  font-family: 'Noto Serif', serif;
+  background: #fcf9f9;
+  color: #1b1b1c;
   font-size: 14px;
   line-height: 1.6;
 }
