@@ -32,7 +32,7 @@ export default function Dashboard() {
       {/* ── Page Header ── */}
       <div className="db-welcome-section">
         <div className="db-welcome-text">
-          <h1 className="db-greeting">Good morning, Officer.</h1>
+          <h1 className="db-greeting">Welcome back, Officer.</h1>
           <p className="db-summary">The system is operational. You have <strong>3 bidders</strong> awaiting your final forensic verdict.</p>
         </div>
       </div>
@@ -166,24 +166,47 @@ export default function Dashboard() {
       </div>
 
       {/* ── Section 3: Quick Operations ── */}
-      <div className="obw-step">
+      <div className="db-quick-ops-section">
         <h2 className="obw-step-title">Quick Operations</h2>
-        <div className="obw-actions" style={{ borderTop: 'none', paddingTop: 0, justifyContent: 'flex-start', gap: 16 }}>
-          <Link to="/tenders/upload" className="obw-btn-commence">
-            <span className="material-symbols-outlined">description</span>
-            Initialize Tender
+        <div className="db-quick-ops-grid">
+          <Link to="/tenders/upload" className="db-op-card">
+            <div className="db-op-icon">
+              <span className="material-symbols-outlined">description</span>
+            </div>
+            <div className="db-op-info">
+              <span className="db-op-label">Initialize Tender</span>
+              <span className="db-op-desc">Start a new evaluation process.</span>
+            </div>
           </Link>
-          <Link to="/evaluate" className="obw-btn-draft">
-            <span className="material-symbols-outlined">rule_folder</span>
-            Evaluate Bidders
+
+          <Link to="/evaluate" className="db-op-card">
+            <div className="db-op-icon">
+              <span className="material-symbols-outlined">rule_folder</span>
+            </div>
+            <div className="db-op-info">
+              <span className="db-op-label">Evaluate Bidders</span>
+              <span className="db-op-desc">Review and score submissions.</span>
+            </div>
           </Link>
-          <Link to="/audit" className="obw-btn-draft">
-            <span className="material-symbols-outlined">receipt_long</span>
-            Audit Trails
+
+          <Link to="/audit" className="db-op-card">
+            <div className="db-op-icon">
+              <span className="material-symbols-outlined">receipt_long</span>
+            </div>
+            <div className="db-op-info">
+              <span className="db-op-label">Audit Trails</span>
+              <span className="db-op-desc">View historical activity logs.</span>
+            </div>
           </Link>
-          <Link to="/admin" className="obw-btn-draft">
-            <span className="material-symbols-outlined">analytics</span>
-            Bias Analysis
+
+          <Link to="/admin" className="db-op-card">
+            <div className="db-op-icon">
+              <span className="material-symbols-outlined">analytics</span>
+            </div>
+            <div className="db-op-info">
+              <span className="db-op-label">Bias Analysis</span>
+              <span className="db-op-desc">Analyze evaluation integrity.</span>
+            </div>
           </Link>
         </div>
       </div>

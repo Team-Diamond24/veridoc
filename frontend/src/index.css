@@ -1775,5 +1775,64 @@ body {
 }
 
 .db-hero-primary-btn .material-symbols-outlined { font-size: 20px !important; }
+/* Quick Operations Cards */
+.db-quick-ops-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
 
+.db-op-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
 
+.db-op-card:hover {
+  border-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.db-op-icon {
+  width: 44px;
+  height: 44px;
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.db-op-card:hover .db-op-icon {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.db-op-icon .material-symbols-outlined { font-size: 24px !important; }
+
+.db-op-info { flex: 1; }
+
+.db-op-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.db-op-desc {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
