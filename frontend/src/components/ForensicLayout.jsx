@@ -16,7 +16,7 @@ const SIDEBAR_NAV = [
   { to: '/audit',    icon: 'receipt_long', label: 'Audit Trail' },
 ];
 
-const FONT_SIZES = [14, 16, 18]; // small, default, large (px)
+const FONT_SIZES = [13, 16, 20]; // small, default, large (px)
 
 export default function ForensicLayout() {
   const [collapsed, setCollapsed] = useState(false);
