@@ -1705,3 +1705,45 @@ body {
   .db-stats-grid { grid-template-columns: repeat(2, 1fr); }
   .db-grid-2 { grid-template-columns: 1fr; }
 }
+
+/* Hero primary action */
+.db-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  margin-bottom: 48px;
+  background: #ffffff;
+  border: 1px solid #e5e2e2;
+  text-align: center;
+}
+
+.db-hero-btn {
+  background: #585f65;  /* primary */
+  color: #ffffff;
+  border: none;
+  padding: 16px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-family: 'Noto Serif', serif;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.db-hero-btn:hover {
+  background: #1b1b1c;  /* darker */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.db-hero-btn .material-symbols-outlined {
+  font-size: 24px !important;
+}
+

@@ -31,19 +31,23 @@ export default function Dashboard() {
     <div className="db-container">
       {/* ── Page Header ── */}
       <div className="obw-page-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <div>
-            <h1>Dashboard — Tender Evaluation Overview</h1>
-            <p>Forensic summary of procurement activities and compliance trends.</p>
-          </div>
-          <button 
-            className="obw-btn-commence" 
-            onClick={() => navigate('/tenders/upload')}
-          >
-            <span className="material-symbols-outlined">add</span>
-            Upload New Tender
-          </button>
-        </div>
+        <h1>Dashboard — Tender Evaluation Overview</h1>
+        <p>Forensic summary of procurement activities and compliance trends.</p>
+      </div>
+
+      {/* ── Section 0: Hero Primary Action ── */}
+      <div className="db-hero">
+        <h2 className="obw-step-title" style={{ marginBottom: 16 }}>Commence New Forensic Evaluation</h2>
+        <p className="obw-step-subtitle" style={{ maxWidth: 500 }}>
+          Initialize a new tender analysis by uploading primary constraints and bidder submissions.
+        </p>
+        <button 
+          className="db-hero-btn" 
+          onClick={() => navigate('/tenders/upload')}
+        >
+          <span className="material-symbols-outlined">cloud_upload</span>
+          Upload New Tender
+        </button>
       </div>
 
       {/* ── Section 1: Core Metrics ── */}
