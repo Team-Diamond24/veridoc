@@ -1189,3 +1189,191 @@ body {
   .beo-bento-grid { grid-template-columns: 1fr; }
 }
 
+/* ─── Forensic Layout Shell (.fl-*) ──────────────────────── */
+
+.fl-root {
+  min-height: 100vh;
+  background: #fcf9f9;
+  color: #1b1b1c;
+  font-family: 'Noto Serif', serif;
+  font-size: 14px;
+}
+
+/* Header */
+.fl-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 64px;
+  background: white;
+  border-bottom: 1px solid #c4c7ca;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.fl-header-left  { display: flex; align-items: center; gap: 32px; }
+.fl-header-right { display: flex; align-items: center; gap: 4px; }
+
+.fl-brand {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: #1b1b1c;
+  font-family: 'Noto Serif', serif;
+  white-space: nowrap;
+}
+
+.fl-header-nav { display: flex; align-items: center; gap: 4px; }
+
+.fl-header-link {
+  font-size: 13px;
+  color: #44474a;
+  text-decoration: none;
+  padding: 6px 8px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, background 0.15s;
+  font-family: 'Noto Serif', serif;
+}
+.fl-header-link:hover { color: #1b1b1c; background: #f6f3f3; }
+.fl-header-link.fl-active {
+  color: #1b1b1c;
+  font-weight: 600;
+  border-bottom-color: #d9e0e7;
+}
+
+.fl-icon-btn {
+  font-size: 22px !important;
+  cursor: pointer;
+  padding: 6px;
+  color: #1b1b1c;
+  border-radius: 4px;
+  transition: background 0.15s;
+  user-select: none;
+}
+.fl-icon-btn:hover { background: #f0eded; }
+
+/* Body (sidebar + main) */
+.fl-body {
+  display: flex;
+  padding-top: 64px;
+  min-height: 100vh;
+}
+
+/* Sidebar */
+.fl-sidebar {
+  width: 256px;
+  background: white;
+  border-right: 1px solid #c4c7ca;
+  position: fixed;
+  left: 0;
+  top: 64px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.fl-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px 24px;
+}
+
+.fl-sidebar-logo {
+  width: 40px;
+  height: 40px;
+  background: #eae7e7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.fl-sidebar-logo .material-symbols-outlined { font-size: 20px !important; color: #44474a; }
+
+.fl-sidebar-org  { font-size: 12px; font-weight: 800; color: #1b1b1c; text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.2; }
+.fl-sidebar-unit { font-size: 10px; color: #44474a; margin-top: 2px; text-transform: none; letter-spacing: 0; }
+
+.fl-sidebar-btn-wrap { padding: 0 16px 20px; }
+
+.fl-new-eval-btn {
+  width: 100%;
+  background: #d9e0e7;
+  color: #1b1b1c;
+  border: none;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-family: 'Noto Serif', serif;
+}
+.fl-new-eval-btn:hover { background: #585f65; color: white; }
+
+.fl-sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 8px;
+  gap: 2px;
+}
+
+.fl-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: #44474a;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition: background 0.15s, color 0.15s;
+  font-family: 'Noto Serif', serif;
+  border-left: 3px solid transparent;
+}
+.fl-nav-link:hover { background: #f6f3f3; color: #1b1b1c; }
+.fl-nav-link.fl-nav-active {
+  background: #f6f3f3;
+  color: #1b1b1c;
+  border-left-color: #d9e0e7;
+  padding-left: 13px;
+}
+
+.fl-nav-icon { font-size: 18px !important; flex-shrink: 0; }
+
+.fl-sidebar-bottom {
+  margin-top: auto;
+  padding: 12px 8px 0;
+  border-top: 1px solid #e5e2e2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Main content */
+.fl-main {
+  flex: 1;
+  margin-left: 256px;
+  padding: 40px 32px;
+  min-height: calc(100vh - 64px);
+  background: #fcf9f9;
+  overflow-y: auto;
+  max-width: 1440px;
+  box-sizing: border-box;
+}
+
+
