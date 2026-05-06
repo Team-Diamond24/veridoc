@@ -5,14 +5,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from database import init_db
+from seed import seed_database
 from routers import tenders, bidders, evaluation, reports
 
 # ─── Create directories ────────────────────────────────────────────────────────
 os.makedirs("uploads/tenders", exist_ok=True)
 os.makedirs("uploads/bidders", exist_ok=True)
 
-# ─── Init DB ───────────────────────────────────────────────────────────────────
+# ─── Init DB & Seed ────────────────────────────────────────────────────────────
 init_db()
+seed_database()
 
 # ─── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(
