@@ -12,6 +12,7 @@ export const uploadTender = (formData) => api.post('/api/tender/upload', formDat
 export const getTenderCriteria = (id) => api.get(`/api/tender/${id}/criteria`);
 export const updateCriterion = (id, data) => api.put(`/api/tender/criteria/${id}`, data);
 export const deleteTender = (id) => api.delete(`/api/tender/${id}`);
+export const generateDummyTender = () => api.post('/api/tender/generate-dummy');
 
 // Bidders
 export const getBidders = (tenderId) => api.get(`/api/bidder/tender/${tenderId}`);

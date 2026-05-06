@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 /*
   ForensicLayout — Refined Government Portal layout with collapsible sidebar.
@@ -23,6 +25,14 @@ export default function ForensicLayout() {
   const [fontLevel, setFontLevel] = useState(1); // 0=small, 1=default, 2=large
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { user, logout } = useContext(AuthContext);
+
+  const getNavItems = () => {
+    if (user?.role === 'ADMIN') {
+      return [...SIDEBAR_NAV, { to: '/admin', icon: 'admin_panel_settings', label: 'Admin Dashboard' }];
+    }
+    return SIDEBAR_NAV;
+  };
 
   const applyFont = (level) => {
     setFontLevel(level);
@@ -61,8 +71,17 @@ export default function ForensicLayout() {
               title="Increase font size"
             >A<sup>+</sup></button>
             <span className="gp-utility-sep">|</span>
-            <button className="gp-login-btn">Login</button>
-            <button className="gp-register-btn">Register</button>
+            {user ? (
+              <>
+                <span className="gp-utility-label hide-mobile" style={{ fontWeight: 600 }}>{user.username} ({user.role})</span>
+                <button className="gp-login-btn" onClick={() => { logout(); navigate('/login'); }}>Logout</button>
+              </>
+            ) : (
+              <>
+                <button className="gp-login-btn" onClick={() => navigate('/login')}>Login</button>
+                <button className="gp-register-btn" onClick={() => navigate('/register')}>Register</button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -98,7 +117,7 @@ export default function ForensicLayout() {
             <div className="gp-sidebar-section">
               <p className="gp-section-label">{collapsed ? '' : 'Main Navigation'}</p>
               <nav className="gp-side-nav">
-                {SIDEBAR_NAV.map(item => (
+                {getNavItems().map(item => (
                   <NavLink
                     key={item.to}
                     to={item.to}

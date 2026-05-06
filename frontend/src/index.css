@@ -1,26 +1,26 @@
 /* VERIDOC — Indian Government Portal Design System */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --gov-navy: #1a3a6b;
-  --gov-navy-dark: #0f2347;
-  --gov-navy-light: #2a5298;
-  --gov-saffron: #f4841b;
-  --gov-saffron-dark: #d4700f;
-  --gov-green: #1a6b2e;
-  --gov-green-light: #e6f4ea;
-  --gov-red: #8b1a1a;
-  --gov-red-light: #fdecea;
-  --gov-amber: #7a5a00;
-  --gov-amber-light: #fff8e1;
-  --gov-blue-light: #e8eef7;
-  --gov-bg: #f0f4f8;
+  --gov-navy: #585f65;
+  --gov-navy-dark: #1b1b1c;
+  --gov-navy-light: #74777b;
+  --gov-saffron: #585f65;
+  --gov-saffron-dark: #44474a;
+  --gov-green: #10B981;
+  --gov-green-light: #d1fae5;
+  --gov-red: #EF4444;
+  --gov-red-light: #fee2e2;
+  --gov-amber: #F59E0B;
+  --gov-amber-light: #fef3c7;
+  --gov-blue-light: #f6f3f3;
+  --gov-bg: #fcf9f9;
   --gov-bg-white: #ffffff;
-  --gov-border: #c8d4e0;
-  --gov-border-dark: #a0b0c0;
-  --gov-text: #1a1a1a;
-  --gov-text-secondary: #4a5568;
-  --gov-text-muted: #718096;
+  --gov-border: #c4c7ca;
+  --gov-border-dark: #74777b;
+  --gov-text: #1b1b1c;
+  --gov-text-secondary: #44474a;
+  --gov-text-muted: #74777b;
   --sidebar-width: 240px;
   --header-height: 80px;
 }
@@ -32,7 +32,7 @@ html {
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   background: #fcf9f9;
   color: #1b1b1c;
   font-size: 0.875rem;
@@ -159,8 +159,7 @@ body {
 /* ─── Page Header ────────────────────────────────────────── */
 .page-header {
   background: white;
-  border: 1px solid var(--gov-border);
-  border-left: 4px solid var(--gov-navy);
+  border-bottom: 1px solid var(--gov-border);
   padding: 16px 20px;
   margin-bottom: 20px;
   display: flex;
@@ -169,10 +168,11 @@ body {
 }
 
 .page-header h2 {
-  font-size: 18px;
+  font-size: 2rem;
+  line-height: 40px;
   font-weight: 700;
-  color: var(--gov-navy);
-  font-family: 'Noto Serif', serif;
+  color: var(--gov-text);
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .page-header .breadcrumb {
@@ -184,20 +184,21 @@ body {
 .gov-card {
   background: white;
   border: 1px solid var(--gov-border);
-  border-radius: 4px;
-  padding: 20px;
+  padding: 24px;
   margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .gov-card-header {
   font-size: 13px;
   font-weight: 700;
-  color: var(--gov-navy);
+  color: var(--gov-text);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding-bottom: 12px;
   margin-bottom: 16px;
-  border-bottom: 2px solid var(--gov-border);
+  border-bottom: 1px solid var(--gov-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -228,7 +229,7 @@ body {
   font-size: 2rem;
   font-weight: 700;
   color: var(--gov-navy);
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .stat-card.green .value { color: var(--gov-green); }
@@ -341,54 +342,54 @@ body {
 
 /* ─── Buttons ─────────────────────────────────────────────── */
 .btn {
-  padding: 8px 16px;
-  font-size: 13px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
   font-weight: 600;
   border: none;
   cursor: pointer;
-  font-family: 'Noto Sans', sans-serif;
-  border-radius: 3px;
+  font-family: 'Inter', -apple-system, sans-serif;
+  letter-spacing: 0.01em;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  transition: background 0.15s;
+  border-radius: 4px;
+  transition: opacity 0.15s, background 0.15s;
 }
 
 .btn-primary {
-  background: var(--gov-navy);
+  background: #1e293b;
   color: white;
 }
-.btn-primary:hover { background: var(--gov-navy-light); }
+.btn-primary:hover { opacity: 0.9; }
 
 .btn-saffron {
-  background: var(--gov-saffron);
+  background: #1e293b;
   color: white;
 }
-.btn-saffron:hover { background: var(--gov-saffron-dark); }
+.btn-saffron:hover { opacity: 0.9; }
 
 .btn-success {
-  background: var(--gov-green);
+  background: #10B981;
   color: white;
 }
-.btn-success:hover { background: #145a26; }
+.btn-success:hover { opacity: 0.9; }
 
 .btn-danger {
-  background: var(--gov-red);
+  background: #EF4444;
   color: white;
 }
-.btn-danger:hover { background: #6b1111; }
+.btn-danger:hover { opacity: 0.9; }
 
 .btn-outline {
-  background: white;
-  color: var(--gov-navy);
-  border: 1px solid var(--gov-border-dark);
+  background: none;
+  color: #1e293b;
+  border: 1px solid #cbd5e1;
 }
-.btn-outline:hover { background: var(--gov-blue-light); }
+.btn-outline:hover { background: #f1f5f9; }
 
-.btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+.btn-sm { padding: 4px 10px; font-size: 0.6875rem; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
 /* ─── Forms ───────────────────────────────────────────────── */
 .form-group {
   margin-bottom: 16px;
@@ -412,7 +413,7 @@ body {
   border: 1px solid var(--gov-border-dark);
   border-radius: 3px;
   font-size: 13px;
-  font-family: 'Noto Sans', sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   color: var(--gov-text);
   background: white;
   transition: border-color 0.15s;
@@ -686,7 +687,7 @@ body {
   line-height: 40px;
   font-weight: 700;
   color: #1b1b1c;        /* text-on-background */
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .obw-page-header p {
@@ -705,7 +706,7 @@ body {
   line-height: 32px;
   font-weight: 700;
   color: #1b1b1c;        /* text-on-background */
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   margin-bottom: 8px;    /* mb-component-gap-sm */
 }
 
@@ -776,7 +777,7 @@ body {
 }
 
 .obw-file-info { display: flex; align-items: center; gap: 8px; }
-.obw-file-name { font-size: 1rem; font-weight: 500; color: #1b1b1c; /* text-on-background */ font-family: 'Noto Serif', serif; }
+.obw-file-name { font-size: 1rem; font-weight: 500; color: #1b1b1c; /* text-on-background */ font-family: 'Inter', -apple-system, sans-serif; }
 .obw-file-meta { font-size: 0.75rem; line-height: 16px; font-weight: 500; color: #44474a; /* data-mono */ }
 
 /* Bidder list — Step 2 */
@@ -820,7 +821,7 @@ body {
 }
 
 .obw-bidder-row-left { display: flex; align-items: center; gap: 4px; /* mr-unit */ }
-.obw-bidder-name { font-size: 0.75rem; line-height: 16px; font-weight: 500; color: #1b1b1c; font-family: 'Noto Serif', serif; }
+.obw-bidder-name { font-size: 0.75rem; line-height: 16px; font-weight: 500; color: #1b1b1c; font-family: 'Inter', -apple-system, sans-serif; }
 
 .obw-delete-btn {
   background: none;
@@ -878,7 +879,7 @@ body {
   justify-content: center;
   font-size: 10px;
   font-weight: 500;
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   margin-bottom: 4px;  /* mb-unit */
 }
 
@@ -905,7 +906,7 @@ body {
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: #44474a;  /* text-on-surface-variant */
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .obw-step-label.active { color: #585f65; /* text-primary */ }
@@ -915,7 +916,7 @@ body {
   color: #74777b;  /* text-outline */
   margin-top: 4px;
   font-weight: 500;
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 /* Ledger table */
@@ -939,7 +940,7 @@ body {
   line-height: 28px;
   font-weight: 600;
   color: #1b1b1c;  /* text-on-background */
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .obw-ledger-time {
@@ -947,10 +948,10 @@ body {
   line-height: 16px;
   font-weight: 500;
   color: #44474a;  /* text-on-surface-variant */
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
-.obw-ledger-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; line-height: 16px; font-weight: 500; font-family: 'Noto Serif', serif; }
+.obw-ledger-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; line-height: 16px; font-weight: 500; font-family: 'Inter', -apple-system, sans-serif; }
 
 .obw-ledger-table th {
   background: #f0eded;  /* bg-surface-container */
@@ -962,7 +963,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.02em;
   border-bottom: 1px solid #c4c7ca;
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .obw-ledger-table td { padding: 8px; border-bottom: 1px solid #c4c7ca; vertical-align: middle; }
@@ -1020,7 +1021,7 @@ body {
   color: #3e5981;  /* text-on-secondary-container */
   font-size: 10px;
   font-weight: 500;
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   padding: 4px 8px;
   margin-left: 8px;
   vertical-align: middle;
@@ -1034,7 +1035,7 @@ body {
   font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.02em;
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   padding: 8px 16px;
   cursor: pointer;
   display: flex;
@@ -1051,7 +1052,7 @@ body {
   font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.02em;
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   padding: 8px 16px;
   cursor: pointer;
   display: flex;
@@ -1077,7 +1078,7 @@ body {
   font-size: 22px;
   font-weight: 700;
   color: var(--gov-navy);
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .beo-page-header p {
@@ -1126,7 +1127,7 @@ body {
   font-size: 36px;
   font-weight: 700;
   color: var(--gov-navy);
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   margin-top: 16px;
 }
 
@@ -1400,7 +1401,7 @@ body {
 }
 
 .gp-brand-text .gp-title {
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
   color: #0f172a;
@@ -1576,7 +1577,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.02em;
   color: #44474a;  /* text-on-surface-variant */
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .db-stat-icon {
@@ -1592,7 +1593,7 @@ body {
   font-size: 2rem;  /* text-h1 */
   font-weight: 700;
   color: #1b1b1c;  /* text-on-background */
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   margin-top: 16px;
 }
 
@@ -1624,7 +1625,7 @@ body {
   font-size: 20px;  /* text-h3 */
   font-weight: 600;
   color: #1b1b1c;
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 .db-table {
@@ -1703,7 +1704,7 @@ body {
 }
 
 .db-greeting {
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   font-size: 2rem;
   font-weight: 700;
   color: #0f172a;
@@ -1741,7 +1742,7 @@ body {
 .db-hero-icon-wrap .material-symbols-outlined { font-size: 32px !important; }
 
 .db-hero-title {
-  font-family: 'Noto Serif', serif;
+  font-family: 'Inter', -apple-system, sans-serif;
   font-size: 1.5rem;
   font-weight: 700;
   color: #0f172a;

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import { getTenders, deleteTender } from '../api';
 import { StatusPill } from '../components/Badges';
 import { toast } from 'react-toastify';
@@ -7,6 +8,7 @@ import { toast } from 'react-toastify';
 export default function TendersList() {
   const [tenders, setTenders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useContext(AuthContext);
 
   const load = () => {
     getTenders().then(r => setTenders(r.data)).catch(console.error).finally(() => setLoading(false));
@@ -74,7 +76,9 @@ export default function TendersList() {
                       <div className="flex gap-8">
                         <Link to={`/tenders/${t.id}`} className="btn btn-outline btn-sm">View</Link>
                         <Link to={`/evaluate?tender_id=${t.id}`} className="btn btn-primary btn-sm">Evaluate</Link>
-                        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(t.id, t.tender_number)}>Del</button>
+                        {user?.role === 'ADMIN' && (
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDelete(t.id, t.tender_number)}>Del</button>
+                        )}
                       </div>
                     </td>
                   </tr>
