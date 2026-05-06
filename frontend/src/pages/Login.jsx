@@ -3,11 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
+/* ──────────────────────────────────────────────────────────
+   Login page — mirrors the ForensicLayout dual-tier header
+   so the navbar looks identical to the Dashboard.
+─────────────────────────────────────────────────────────── */
+
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [fontLevel, setFontLevel] = useState(1);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const FONT_SIZES = [13, 16, 20];
+  const applyFont = (level) => {
+    setFontLevel(level);
+    document.documentElement.style.fontSize = FONT_SIZES[level] + 'px';
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -15,105 +27,159 @@ export default function Login() {
       toast.error('Please enter both username and password.');
       return;
     }
-
-    // Dummy authentication logic
     let role = 'USER';
-    if (username.toLowerCase() === 'admin') {
-      role = 'ADMIN';
-    }
-
+    if (username.toLowerCase() === 'admin') role = 'ADMIN';
     login(username, role);
     toast.success(`Logged in successfully as ${role}`);
     navigate('/');
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--gov-bg)' }}>
-      {/* Top Bar matching header theme */}
-      <div style={{ 
-        height: 'var(--header-height, 80px)', 
-        background: 'var(--gov-navy)', 
-        borderBottom: '4px solid var(--gov-saffron)', 
-        display: 'flex', 
-        alignItems: 'center', 
-        padding: '0 24px',
-        color: 'white',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div className="emblem" style={{ 
-            width: '52px', 
-            height: '52px', 
-            background: 'white', 
-            borderRadius: '50%', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            color: 'var(--gov-navy)', 
-            fontWeight: 'bold',
-            fontSize: '24px'
+    <div className="gp-root">
+
+      {/* ── TIER 1: Utility Bar ── */}
+      <div className="gp-utility-bar">
+        <div className="gp-utility-inner">
+          <div className="gp-utility-left">
+            <span className="gp-utility-label hide-mobile">Accessibility</span>
+            <span className="gp-utility-sep hide-mobile">|</span>
+            <span className="gp-utility-label hide-mobile">Screen Reader</span>
+          </div>
+          <div className="gp-utility-right">
+            <button
+              className={`gp-font-btn${fontLevel === 0 ? ' gp-font-active' : ''}`}
+              onClick={() => applyFont(0)}
+              title="Decrease font size"
+            >A<sup>-</sup></button>
+            <button
+              className={`gp-font-btn${fontLevel === 1 ? ' gp-font-active' : ''}`}
+              onClick={() => applyFont(1)}
+              title="Default font size"
+            >A</button>
+            <button
+              className={`gp-font-btn${fontLevel === 2 ? ' gp-font-active' : ''}`}
+              onClick={() => applyFont(2)}
+              title="Increase font size"
+            >A<sup>+</sup></button>
+            <span className="gp-utility-sep">|</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── TIER 2: Main Header ── */}
+      <header className="gp-header">
+        <div className="gp-header-inner">
+          <div className="gp-brand-group" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+            <div className="gp-brand-text">
+              <h1 className="gp-title">VeriDoc <span className="gp-title-suffix">Forensic</span></h1>
+              <p className="gp-subtitle">AI-Powered Tender Evaluation | CRPF Division</p>
+            </div>
+          </div>
+
+
+        </div>
+      </header>
+
+      {/* ── Page Body ── */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', background: '#f8fafc' }}>
+        <div style={{ width: '100%', maxWidth: '440px' }}>
+
+          {/* Breadcrumb */}
+          <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>home</span>
+            Home &rsaquo; Sign In
+          </p>
+
+          {/* Card */}
+          <div style={{
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            borderTop: '4px solid #1e293b',
+            borderRadius: '8px',
+            padding: '36px 32px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
           }}>
-            V
+
+            {/* Shield icon + title */}
+            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <div style={{
+                width: '52px', height: '52px', background: '#f1f5f9',
+                borderRadius: '50%', display: 'inline-flex', alignItems: 'center',
+                justifyContent: 'center', marginBottom: '12px',
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '26px', color: '#1e293b' }}>lock</span>
+              </div>
+              <h2 style={{ fontSize: '1.375rem', fontWeight: 700, color: '#0f172a', marginBottom: '6px' }}>
+                Authorized Sign In
+              </h2>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b', lineHeight: 1.6 }}>
+                Enter your credentials to access the secure tender evaluation platform.
+              </p>
+            </div>
+
+            <form onSubmit={handleLogin}>
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label className="form-label">
+                  Username <span className="form-required">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  placeholder="Try 'admin' for admin privileges"
+                  style={{ padding: '11px 14px', fontSize: '14px', borderRadius: '6px' }}
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: '28px' }}>
+                <label className="form-label">
+                  Password <span className="form-required">*</span>
+                </label>
+                <input
+                  type="password"
+                  className="form-control"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Any password works (Dummy)"
+                  style={{ padding: '11px 14px', fontSize: '14px', borderRadius: '6px' }}
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: '0.875rem', borderRadius: '6px', gap: '8px' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>login</span>
+                Secure Login
+              </button>
+            </form>
+
+            <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e2e8f0', textAlign: 'center' }}>
+              <p style={{ fontSize: '0.8125rem', color: '#64748b' }}>
+                Don't have an account?{' '}
+                <span
+                  style={{ color: '#1e293b', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}
+                  onClick={() => navigate('/register')}
+                >
+                  Register here
+                </span>
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 style={{ margin: 0, fontSize: '18px', fontWeight: 700, letterSpacing: '0.5px' }}>VeriDoc Portal</h1>
-            <p style={{ margin: 0, fontSize: '0.6875rem', color: '#b0c4de', letterSpacing: '0.3px' }}>Government e-Procurement System</p>
+
+          {/* Security note */}
+          <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#94a3b8' }}>verified_user</span>
+            <span style={{ fontSize: '0.6875rem', color: '#94a3b8' }}>
+              Secured under GFR 2017. Unauthorized access is a punishable offence.
+            </span>
           </div>
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-        <div className="gov-card" style={{ 
-          maxWidth: '440px', 
-          width: '100%', 
-          boxShadow: '0 8px 24px rgba(0,0,0,0.08)', 
-          borderTop: '4px solid var(--gov-navy)',
-          padding: '32px'
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--gov-navy-dark)', marginBottom: '8px' }}>Authorized Sign In</h2>
-            <p style={{ fontSize: '0.875rem', color: 'var(--gov-text-muted)' }}>Enter your credentials to access the secure tender evaluation platform.</p>
-          </div>
-
-          <form onSubmit={handleLogin}>
-            <div className="form-group" style={{ marginBottom: '20px' }}>
-              <label className="form-label">Username <span className="form-required">*</span></label>
-              <input 
-                type="text" 
-                className="form-control" 
-                value={username} 
-                onChange={e => setUsername(e.target.value)} 
-                placeholder="Try 'admin' for admin privileges"
-                style={{ padding: '12px 14px', fontSize: '14px' }}
-              />
-            </div>
-            <div className="form-group" style={{ marginBottom: '28px' }}>
-              <label className="form-label">Password <span className="form-required">*</span></label>
-              <input 
-                type="password" 
-                className="form-control" 
-                value={password} 
-                onChange={e => setPassword(e.target.value)} 
-                placeholder="Any password works (Dummy)"
-                style={{ padding: '12px 14px', fontSize: '14px' }}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: '0.875rem' }}>
-              Secure Login
-            </button>
-          </form>
-
-          <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--gov-border)', textAlign: 'center' }}>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--gov-text-muted)' }}>
-              Don't have an account? <span style={{ color: 'var(--gov-navy)', fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }} onClick={() => navigate('/register')}>Register here</span>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer matching standard theme */}
-      <div style={{ padding: '16px', textAlign: 'center', background: 'var(--gov-navy-dark)', color: '#8090a0', fontSize: '0.75rem' }}>
-        © 2026 VeriDoc Procurement Portal. All rights reserved.
+      {/* ── Footer ── */}
+      <div style={{ padding: '14px 24px', textAlign: 'center', background: '#ffffff', borderTop: '1px solid #e2e8f0', color: '#94a3b8', fontSize: '0.6875rem' }}>
+        © 2026 VeriDoc Forensic | CRPF Procurement Division. All rights reserved.
       </div>
     </div>
   );

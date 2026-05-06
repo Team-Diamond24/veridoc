@@ -90,9 +90,6 @@ export default function ForensicLayout() {
       <header className="gp-header">
         <div className="gp-header-inner">
           <div className="gp-brand-group" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-            <div className="gp-emblem">
-              <span className="material-symbols-outlined">shield</span>
-            </div>
             <div className="gp-brand-text">
               <h1 className="gp-title">VeriDoc <span className="gp-title-suffix">Forensic</span></h1>
               <p className="gp-subtitle">AI-Powered Tender Evaluation | CRPF Division</p>
