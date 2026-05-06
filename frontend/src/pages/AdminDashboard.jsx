@@ -1,84 +1,20 @@
 import { useState, useEffect } from 'react';
-import { getBiasReport, getTenders, deleteTender, generateDummyTender } from '../api';
-import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { getBiasReport } from '../api';
 
 export default function AdminDashboard() {
   const [report, setReport] = useState(null);
-  const [tenders, setTenders] = useState([]);
-  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     getBiasReport().then(r => setReport(r.data)).catch(console.error);
-    loadTenders();
   }, []);
-
-  const loadTenders = () => {
-    getTenders().then(r => setTenders(r.data)).catch(console.error);
-  };
-
-  const handleGenerateDummy = async () => {
-    setGenerating(true);
-    try {
-      await generateDummyTender();
-      toast.success('Dummy tender created successfully!');
-      loadTenders();
-    } catch (e) {
-      toast.error('Failed to generate dummy tender.');
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const handleDelete = async (id, num) => {
-    if (!confirm(`Delete tender ${num}?`)) return;
-    try {
-      await deleteTender(id);
-      toast.success('Deleted.');
-      loadTenders();
-    } catch { toast.error('Delete failed.'); }
-  };
 
   if (!report) return <div className="text-center" style={{ padding: 40 }}>Loading admin dashboard...</div>;
 
   return (
     <div>
       <div className="page-header">
-        <h2>Admin Dashboard — Management & Active Learning</h2>
+        <h2>Admin Dashboard — Bias Detection & Active Learning</h2>
         <div className="breadcrumb">Home › Admin</div>
-      </div>
-
-      {/* Tender Management */}
-      <div className="gov-card">
-        <div className="gov-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Tender Management (Admin Only)</span>
-          <button className="btn btn-primary btn-sm" onClick={handleGenerateDummy} disabled={generating}>
-            {generating ? 'Generating...' : '+ Generate Dummy Tender & Bidders'}
-          </button>
-        </div>
-        <div className="gov-table-wrap">
-          <table className="gov-table">
-            <thead>
-              <tr><th>ID</th><th>Tender No.</th><th>Status</th><th>Actions</th></tr>
-            </thead>
-            <tbody>
-              {tenders.length === 0 ? <tr><td colSpan="4" className="text-center text-muted">No tenders found.</td></tr> : tenders.map(t => (
-                <tr key={t.id}>
-                  <td>{t.id}</td>
-                  <td style={{ fontWeight: 600 }}><Link to={`/tenders/${t.id}`}>{t.tender_number}</Link></td>
-                  <td>{t.status}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <Link to={`/tenders/${t.id}`} className="btn btn-outline btn-sm">Update/View</Link>
-                      <Link to={`/evaluate?tender_id=${t.id}`} className="btn btn-saffron btn-sm">Evaluate</Link>
-                      <button className="btn btn-danger btn-sm" onClick={() => handleDelete(t.id, t.tender_number)}>Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
 
       {/* Key Metrics */}
